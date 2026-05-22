@@ -61,6 +61,7 @@
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "chrome-devtools"
+    "chrome-devtools",
+    "angular-cli"
   ]
 }
