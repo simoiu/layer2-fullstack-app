@@ -1,0 +1,23 @@
+{
+  "skill_name": "architecture-expert",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Where should I add a new REST endpoint for product reviews? Walk me through which files to touch.",
+      "expected_output": "Concrete list of backend files/packages to create or modify: new model, repository, service, controller, DTOs and mapper. Should mention the correct base package (msg.onlineshopapi), follow the existing layered pattern, and optionally note where a frontend feature folder would go.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "How does auth work end-to-end in this app?",
+      "expected_output": "End-to-end explanation covering: login POST /auth/login → JwtService generates token → stored in localStorage → AuthTokenInterceptor attaches Bearer header → JwtAuthFilter validates on backend → SecurityContext populated. Should mention roles (CUSTOMER/ADMIN), @PreAuthorize, and the Angular guards (authGuard, rolesGuard).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "What pattern does the app use to pick which warehouse fulfills an order, and where is it configured?",
+      "expected_output": "Identifies the Strategy pattern, names both implementations (SingleLocationStrategy, MostAbundantStrategy), explains what each does, and points to app.order.strategy in application.yml as the config key.",
+      "files": []
+    }
+  ]
+}
