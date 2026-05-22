@@ -1,0 +1,66 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__chrome-devtools__*",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(findstr:*)",
+      "Bash(head:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(wc:*)",
+      "Bash(echo:*)",
+      "Bash(Get-ChildItem:*)",
+      "Bash(Get-Content:*)",
+      "Bash(Select-String:*)",
+
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git stash:*)",
+
+      "Bash(npm run lint:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx tsc:*)",
+
+      "Bash(mvn dependency:tree)",
+      "Bash(mvn test:*)",
+      "Bash(mvn compile:*)",
+
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+
+      "Bash(go test:*)",
+      "Bash(go build:*)",
+
+      "Bash(python -m pytest:*)",
+      "Bash(pip list:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git push --force:*)",
+      "Bash(rm -rf:*)",
+      "Bash(Remove-Item -Recurse -Force:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(Invoke-WebRequest:*)",
+      "Bash(npm publish:*)",
+      "Bash(dotnet nuget push:*)",
+      "Bash(mvn deploy:*)"
+    ],
+    "ask": [
+      "Bash(git commit:*)"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "chrome-devtools"
+  ]
+}

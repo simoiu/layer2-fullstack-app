@@ -44,4 +44,7 @@ __screenshots__/
 Thumbs.db
 
 # Claude
-.claude/
+.claude/settings.local.json
+
+# Onboarding screenshots
+onboarding-screenshots-*/
