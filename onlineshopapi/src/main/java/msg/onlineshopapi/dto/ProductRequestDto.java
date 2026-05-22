@@ -18,4 +18,5 @@ public class ProductRequestDto {
     private Double weight;
     private String imageUrl;
     private UUID categoryId;
+    private UUID supplierId;
 }

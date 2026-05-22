@@ -180,6 +180,12 @@ describe('CartOverviewPageComponent', () => {
         it('should create order and navigate to orders on success', () => {
             // Prepare
             fixture.detectChanges();
+            component.addressForm.patchValue({
+                country: 'Romania',
+                city: 'Bucharest',
+                county: 'Ilfov',
+                streetAddress: '1 Main St'
+            });
 
             // Action
             component.onCheckout();
@@ -198,6 +204,12 @@ describe('CartOverviewPageComponent', () => {
             // Prepare
             ordersServiceMock.create.mockReturnValue(throwError(() => new Error('Failed')));
             fixture.detectChanges();
+            component.addressForm.patchValue({
+                country: 'Romania',
+                city: 'Bucharest',
+                county: 'Ilfov',
+                streetAddress: '1 Main St'
+            });
 
             // Action
             component.onCheckout();

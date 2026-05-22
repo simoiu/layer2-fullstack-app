@@ -6,6 +6,7 @@ import { signal } from '@angular/core';
 import { ProductCatalogPageComponent } from './product-catalog-page.component';
 import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../../cart/services/cart.service';
+import { AuthService } from '../../../../auth/services/auth.service';
 import { NotificationsService } from '../../../../../core/services/notifications.service';
 import { MOCK_PRODUCTS } from '../../../../../core/mocks/data/products.mock';
 import { AppNavRoutes } from '../../../../../core/config/constants/navigation.constants';
@@ -30,6 +31,12 @@ describe('ProductCatalogPageComponent', () => {
     };
     let notificationsServiceMock: {
         notifySuccess: ReturnType<typeof vi.fn>;
+    };
+    let authServiceMock: {
+        isAuthenticated: ReturnType<typeof signal>;
+        roles: ReturnType<typeof signal>;
+        hasRole: ReturnType<typeof vi.fn>;
+        loadProfileIfNeeded: ReturnType<typeof vi.fn>;
     };
     let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
@@ -56,11 +63,19 @@ describe('ProductCatalogPageComponent', () => {
             notifySuccess: vi.fn()
         };
 
+        authServiceMock = {
+            isAuthenticated: signal(false),
+            roles: signal([]),
+            hasRole: vi.fn().mockReturnValue(false),
+            loadProfileIfNeeded: vi.fn().mockReturnValue(of(null))
+        };
+
         TestBed.configureTestingModule({
             imports: [ProductCatalogPageComponent],
             providers: [
                 { provide: ProductService, useValue: productServiceMock },
                 { provide: CartService, useValue: cartServiceMock },
+                { provide: AuthService, useValue: authServiceMock },
                 { provide: Router, useValue: routerMock },
                 { provide: NotificationsService, useValue: notificationsServiceMock },
                 { provide: EnvironmentConfig, useValue: MOCK_ENVIRONMENT_CONFIG }

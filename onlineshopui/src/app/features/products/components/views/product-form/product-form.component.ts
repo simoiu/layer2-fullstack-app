@@ -1,6 +1,7 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ProductCategoryDto } from '../../../../../core/types/dtos/product.dto';
+import { SupplierDto } from '../../../../../core/types/dtos/supplier.dto';
 import { ProductFormGroup } from '../../../types/product-form.types';
 import { ErrorMessageComponent } from '../../../../../clib/components/error-message/error-message.component';
 
@@ -14,6 +15,7 @@ import { ErrorMessageComponent } from '../../../../../clib/components/error-mess
 export class ProductFormComponent {
     form = input.required<ProductFormGroup>();
     categories = input.required<ProductCategoryDto[]>();
+    suppliers = input.required<SupplierDto[]>();
     isSubmitting = input<boolean>(false);
     submitLabel = input<string>('Submit');
 

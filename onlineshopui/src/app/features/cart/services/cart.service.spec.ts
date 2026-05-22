@@ -6,25 +6,35 @@ import { MOCK_CART_ITEMS } from '../../../core/mocks/data/cart.mock';
 describe('CartService', () => {
     let service: CartService;
     let localStorageMock: Record<string, string>;
+    let localStorageStore: {
+        getItem: ReturnType<typeof vi.fn>;
+        setItem: ReturnType<typeof vi.fn>;
+        removeItem: ReturnType<typeof vi.fn>;
+        clear: ReturnType<typeof vi.fn>;
+    };
 
     beforeEach(() => {
-        // Mock localStorage
+        // Mock localStorage — window.localStorage may be undefined in the test environment,
+        // so we assign a fake directly rather than spying on Storage.prototype
         localStorageMock = {};
 
-        vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
-            return localStorageMock[key] || null;
-        });
+        localStorageStore = {
+            getItem: vi.fn((key: string) => localStorageMock[key] || null),
+            setItem: vi.fn((key: string, value: string) => {
+                localStorageMock[key] = value;
+            }),
+            removeItem: vi.fn((key: string) => {
+                delete localStorageMock[key];
+            }),
+            clear: vi.fn(() => {
+                localStorageMock = {};
+            })
+        };
 
-        vi.spyOn(Storage.prototype, 'setItem').mockImplementation((key: string, value: string) => {
-            localStorageMock[key] = value;
-        });
-
-        vi.spyOn(Storage.prototype, 'removeItem').mockImplementation((key: string) => {
-            delete localStorageMock[key];
-        });
-
-        vi.spyOn(Storage.prototype, 'clear').mockImplementation(() => {
-            localStorageMock = {};
+        Object.defineProperty(window, 'localStorage', {
+            value: localStorageStore,
+            writable: true,
+            configurable: true
         });
 
         TestBed.configureTestingModule({
@@ -193,7 +203,7 @@ describe('CartService', () => {
             service.addItem('prod-1', 2);
 
             // Verify
-            expect(Storage.prototype.setItem).toHaveBeenCalledWith(
+            expect(localStorageStore.setItem).toHaveBeenCalledWith(
                 'cart_state',
                 JSON.stringify({ items: [{ productId: 'prod-1', quantity: 2 }] })
             );
@@ -263,7 +273,7 @@ describe('CartService', () => {
             service.updateQuantity('prod-1', 10);
 
             // Verify
-            expect(Storage.prototype.setItem).toHaveBeenCalled();
+            expect(localStorageStore.setItem).toHaveBeenCalled();
         });
     });
 
@@ -306,7 +316,7 @@ describe('CartService', () => {
             service.removeItem('prod-1');
 
             // Verify
-            expect(Storage.prototype.setItem).toHaveBeenCalled();
+            expect(localStorageStore.setItem).toHaveBeenCalled();
         });
     });
 
@@ -336,7 +346,7 @@ describe('CartService', () => {
             service.clear();
 
             // Verify
-            expect(Storage.prototype.setItem).toHaveBeenCalledWith(
+            expect(localStorageStore.setItem).toHaveBeenCalledWith(
                 'cart_state',
                 JSON.stringify({ items: [] })
             );

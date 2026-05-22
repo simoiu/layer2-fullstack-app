@@ -295,7 +295,8 @@ describe('ProductService', () => {
                 price: 99.99,
                 weight: 1.5,
                 imageUrl: 'http://test.com/image.jpg',
-                categoryId: 'cat-1'
+                categoryId: 'cat-1',
+                supplierId: 'sup-1'
             };
 
             const createdProduct: ProductDto = {
@@ -305,7 +306,8 @@ describe('ProductService', () => {
                 price: newProductData.price,
                 weight: newProductData.weight,
                 imageUrl: newProductData.imageUrl,
-                category: MOCK_CATEGORIES[0]
+                category: MOCK_CATEGORIES[0],
+                supplier: null
             };
 
             // Pre-populate with existing products
@@ -338,7 +340,8 @@ describe('ProductService', () => {
                 price: 50.0,
                 weight: 0.5,
                 imageUrl: 'http://example.com/image.jpg',
-                categoryId: 'cat-2'
+                categoryId: 'cat-2',
+                supplierId: 'sup-1'
             };
 
             // Action
@@ -351,7 +354,8 @@ describe('ProductService', () => {
             req.flush({
                 id: 'prod-test',
                 ...newProductData,
-                category: MOCK_CATEGORIES[1]
+                category: MOCK_CATEGORIES[1],
+                supplier: null
             });
         });
 
@@ -363,7 +367,8 @@ describe('ProductService', () => {
                 price: 99.99,
                 weight: 1.5,
                 imageUrl: 'http://test.com/image.jpg',
-                categoryId: 'cat-1'
+                categoryId: 'cat-1',
+                supplierId: 'sup-1'
             };
 
             // Action
