@@ -1,6 +1,7 @@
 package msg.onlineshopapi.integration;
 
 import msg.onlineshopapi.exception.OrderNotProcessableException;
+import msg.onlineshopapi.model.Address;
 import msg.onlineshopapi.model.Location;
 import msg.onlineshopapi.model.Order;
 import msg.onlineshopapi.model.OrderDetail;
@@ -78,6 +79,10 @@ class OrderServiceTest {
     @Autowired
     private OrderRepository orderRepository;
 
+    private static final Address TEST_ADDRESS = Address.builder()
+            .country("Romania").city("Cluj-Napoca").county("Cluj").streetAddress("Str. Observatorului 72")
+            .build();
+
     private Product laptop;
     private Location location;
     private User user;
@@ -139,6 +144,7 @@ class OrderServiceTest {
                 .quantity(3)
                 .build();
         Order order = Order.builder()
+                .address(TEST_ADDRESS)
                 .orderDetails(new HashSet<>(Set.of(detail)))
                 .build();
 
@@ -166,6 +172,7 @@ class OrderServiceTest {
                 .quantity(5)
                 .build();
         Order order = Order.builder()
+                .address(TEST_ADDRESS)
                 .orderDetails(new HashSet<>(Set.of(detail)))
                 .build();
 
@@ -210,6 +217,7 @@ class OrderServiceTest {
                 .quantity(3)
                 .build();
         Order order = Order.builder()
+                .address(TEST_ADDRESS)
                 .orderDetails(new HashSet<>(Set.of(laptopDetail, mouseDetail)))
                 .build();
 
@@ -261,6 +269,7 @@ class OrderServiceTest {
                 .quantity(5)
                 .build();
         Order order = Order.builder()
+                .address(TEST_ADDRESS)
                 .orderDetails(new HashSet<>(Set.of(laptopDetail, keyboardDetail)))
                 .build();
 

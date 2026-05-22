@@ -15,4 +15,13 @@ public class AddressMapper {
                 .streetAddress(address.getStreetAddress())
                 .build();
     }
+
+    public Address toEntity(AddressDto dto) {
+        return Address.builder()
+                .country(dto.getCountry())
+                .city(dto.getCity())
+                .county(dto.getCounty())
+                .streetAddress(dto.getStreetAddress())
+                .build();
+    }
 }

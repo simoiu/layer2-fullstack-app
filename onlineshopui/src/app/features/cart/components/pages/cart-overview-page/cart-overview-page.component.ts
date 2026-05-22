@@ -7,6 +7,7 @@ import {
     signal
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 import { take } from 'rxjs';
 import { CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../../products/services/product.service';
@@ -21,10 +22,12 @@ import {
     calculateCartSubtotal,
     toCreateOrderDto
 } from '../../../utils/cart.utils';
+import { createAddressForm } from '../../../utils/address-form.utils';
+import { AddressFormGroup } from '../../../types/address-form.types';
 
 @Component({
     selector: 'app-cart-overview-page',
-    imports: [SpinnerComponent, CartItemRowComponent, CartSummaryComponent, RouterLink],
+    imports: [SpinnerComponent, CartItemRowComponent, CartSummaryComponent, RouterLink, ReactiveFormsModule],
     templateUrl: './cart-overview-page.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -54,6 +57,8 @@ export class CartOverviewPageComponent implements OnInit {
 
     readonly itemCount = this.cartService.totalItems;
 
+    readonly addressForm: AddressFormGroup = createAddressForm();
+
     ngOnInit(): void {
         this.productService.loadAll().pipe(take(1)).subscribe();
     }
@@ -73,7 +78,12 @@ export class CartOverviewPageComponent implements OnInit {
     onCheckout(): void {
         if (this.cartItems().length === 0) return;
 
-        const payload = toCreateOrderDto(this.cartItems());
+        if (this.addressForm.invalid) {
+            this.addressForm.markAllAsTouched();
+            return;
+        }
+
+        const payload = toCreateOrderDto(this.cartItems(), this.addressForm.getRawValue());
         if (!payload) return;
 
         this.isSubmitting.set(true);
