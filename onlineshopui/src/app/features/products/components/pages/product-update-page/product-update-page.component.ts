@@ -5,6 +5,7 @@ import { CardComponent } from '../../../../../clib/components/card/card.componen
 import { SpinnerComponent } from '../../../../../clib/components/spinner/spinner.component';
 import { ProductFormComponent } from '../../views/product-form/product-form.component';
 import { ProductService } from '../../../services/product.service';
+import { SupplierService } from '../../../services/supplier.service';
 import { createProductForm } from '../../../utils/product-form.utils';
 import { AppNavRoutes } from '../../../../../core/config/constants/navigation.constants';
 import { NotificationsService } from '../../../../../core/services/notifications.service';
@@ -18,6 +19,7 @@ import { NotificationsService } from '../../../../../core/services/notifications
 })
 export class ProductUpdatePageComponent implements OnInit {
     private readonly productService = inject(ProductService);
+    private readonly supplierService = inject(SupplierService);
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly notificationsService = inject(NotificationsService);
@@ -25,6 +27,7 @@ export class ProductUpdatePageComponent implements OnInit {
     readonly form = createProductForm();
     readonly product = this.productService.selectedProduct;
     readonly categories = this.productService.categories;
+    readonly suppliers = this.supplierService.suppliers;
     readonly loading = this.productService.loading;
     readonly error = this.productService.error;
     readonly isSubmitting = signal(false);
@@ -40,7 +43,8 @@ export class ProductUpdatePageComponent implements OnInit {
                     price: prod.price,
                     weight: prod.weight,
                     imageUrl: prod.imageUrl,
-                    categoryId: prod.category.id
+                    categoryId: prod.category.id,
+                    supplierId: prod.supplier?.id ?? ''
                 });
             }
         });
@@ -61,6 +65,7 @@ export class ProductUpdatePageComponent implements OnInit {
             this.productId.set(id);
             this.productService.loadById(id).pipe(take(1)).subscribe();
             this.productService.loadCategories().pipe(take(1)).subscribe();
+            this.supplierService.loadAll().pipe(take(1)).subscribe();
         } else {
             this.router.navigate([
                 `/${AppNavRoutes.Products.root}/${AppNavRoutes.Products.features.overview}`
@@ -84,7 +89,8 @@ export class ProductUpdatePageComponent implements OnInit {
             price: formValue.price,
             weight: formValue.weight,
             imageUrl: formValue.imageUrl,
-            categoryId: formValue.categoryId
+            categoryId: formValue.categoryId,
+            supplierId: formValue.supplierId
         };
 
         this.isSubmitting.set(true);
@@ -124,6 +130,7 @@ export class ProductUpdatePageComponent implements OnInit {
         if (id) {
             this.productService.loadById(id).pipe(take(1)).subscribe();
             this.productService.loadCategories().pipe(take(1)).subscribe();
+            this.supplierService.loadAll().pipe(take(1)).subscribe();
         }
     }
 }

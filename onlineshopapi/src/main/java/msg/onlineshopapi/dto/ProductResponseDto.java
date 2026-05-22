@@ -18,5 +18,6 @@ public class ProductResponseDto {
     private BigDecimal price;
     private Double weight;
     private ProductCategoryDto category;
+    private SupplierDto supplier;
     private String imageUrl;
 }

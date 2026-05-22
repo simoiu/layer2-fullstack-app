@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, tap, finalize, catchError, of, map } from 'rxjs';
-import { ProductDto, ProductCategoryDto } from '../../../core/types/dtos/product.dto';
+import { ProductDto, ProductCategoryDto, CreateProductRequest, UpdateProductRequest } from '../../../core/types/dtos/product.dto';
 import { EnvironmentConfig } from '../../../core/types/providers/environment-config';
 
 @Injectable({
@@ -74,9 +74,7 @@ export class ProductService {
         );
     }
 
-    create(
-        data: Omit<ProductDto, 'id' | 'category'> & { categoryId: string }
-    ): Observable<ProductDto> {
+    create(data: CreateProductRequest): Observable<ProductDto> {
         return this.http.post<ProductDto>(this.productsUrl, data).pipe(
             tap(newProduct => {
                 this._products.update(products => [...products, newProduct]);
@@ -84,10 +82,7 @@ export class ProductService {
         );
     }
 
-    update(
-        id: string,
-        data: Partial<ProductDto> & { categoryId?: string }
-    ): Observable<ProductDto> {
+    update(id: string, data: UpdateProductRequest): Observable<ProductDto> {
         return this.http.put<ProductDto>(`${this.productsUrl}/${id}`, data).pipe(
             tap(updatedProduct => {
                 this._products.update(products =>

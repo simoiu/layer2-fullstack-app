@@ -27,11 +27,12 @@
         }
 
         <!-- Form -->
-        @if (product() && categories().length > 0) {
+        @if (product() && categories().length > 0 && suppliers().length > 0) {
             <app-card>
                 <app-product-form
                     [form]="form"
                     [categories]="categories()"
+                    [suppliers]="suppliers()"
                     [isSubmitting]="isSubmitting()"
                     [submitLabel]="'Update Product'"
                     (formSubmit)="onSubmit()"

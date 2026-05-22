@@ -5,6 +5,7 @@ import { CardComponent } from '../../../../../clib/components/card/card.componen
 import { SpinnerComponent } from '../../../../../clib/components/spinner/spinner.component';
 import { ProductFormComponent } from '../../views/product-form/product-form.component';
 import { ProductService } from '../../../services/product.service';
+import { SupplierService } from '../../../services/supplier.service';
 import { createProductForm } from '../../../utils/product-form.utils';
 import { AppNavRoutes } from '../../../../../core/config/constants/navigation.constants';
 import { NotificationsService } from '../../../../../core/services/notifications.service';
@@ -18,11 +19,13 @@ import { NotificationsService } from '../../../../../core/services/notifications
 })
 export class ProductCreatePageComponent implements OnInit {
     private readonly productService = inject(ProductService);
+    private readonly supplierService = inject(SupplierService);
     private readonly router = inject(Router);
     private readonly notificationsService = inject(NotificationsService);
 
     readonly form = createProductForm();
     readonly categories = this.productService.categories;
+    readonly suppliers = this.supplierService.suppliers;
     readonly loading = this.productService.loading;
     readonly isSubmitting = signal(false);
 
@@ -39,6 +42,7 @@ export class ProductCreatePageComponent implements OnInit {
 
     ngOnInit(): void {
         this.productService.loadCategories().pipe(take(1)).subscribe();
+        this.supplierService.loadAll().pipe(take(1)).subscribe();
     }
 
     onSubmit(): void {
@@ -54,7 +58,8 @@ export class ProductCreatePageComponent implements OnInit {
             price: formValue.price,
             weight: formValue.weight,
             imageUrl: formValue.imageUrl,
-            categoryId: formValue.categoryId
+            categoryId: formValue.categoryId,
+            supplierId: formValue.supplierId
         };
 
         this.isSubmitting.set(true);

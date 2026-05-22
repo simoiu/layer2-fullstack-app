@@ -22,24 +22,34 @@ describe('AuthService', () => {
     let httpMock: HttpTestingController;
     let router: Router;
     let localStorageMock: Record<string, string>;
+    let localStorageStore: {
+        getItem: ReturnType<typeof vi.fn>;
+        setItem: ReturnType<typeof vi.fn>;
+        removeItem: ReturnType<typeof vi.fn>;
+    };
 
     const mockUser = MOCK_USERS[1]; // CUSTOMER user
     const mockToken = MOCK_JWT_TOKEN;
 
     beforeEach(() => {
-        // Mock localStorage
+        // Mock localStorage — window.localStorage may be undefined in the test environment,
+        // so we assign a fake directly rather than spying on Storage.prototype
         localStorageMock = {};
 
-        vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
-            return localStorageMock[key] || null;
-        });
+        localStorageStore = {
+            getItem: vi.fn((key: string) => localStorageMock[key] || null),
+            setItem: vi.fn((key: string, value: string) => {
+                localStorageMock[key] = value;
+            }),
+            removeItem: vi.fn((key: string) => {
+                delete localStorageMock[key];
+            })
+        };
 
-        vi.spyOn(Storage.prototype, 'setItem').mockImplementation((key: string, value: string) => {
-            localStorageMock[key] = value;
-        });
-
-        vi.spyOn(Storage.prototype, 'removeItem').mockImplementation((key: string) => {
-            delete localStorageMock[key];
+        Object.defineProperty(window, 'localStorage', {
+            value: localStorageStore,
+            writable: true,
+            configurable: true
         });
 
         // Mock Router
@@ -153,7 +163,7 @@ describe('AuthService', () => {
             expect(profileReq.request.method).toBe('GET');
             profileReq.flush(mockUser);
 
-            expect(Storage.prototype.setItem).toHaveBeenCalledWith('access_token', mockToken);
+            expect(localStorageStore.setItem).toHaveBeenCalledWith('access_token', mockToken);
         });
 
         it('should set roles after successful login', () => {
@@ -277,7 +287,7 @@ describe('AuthService', () => {
             service.logout();
 
             // Verify
-            expect(Storage.prototype.removeItem).toHaveBeenCalledWith('access_token');
+            expect(localStorageStore.removeItem).toHaveBeenCalledWith('access_token');
         });
 
         it('should navigate to login page', () => {
