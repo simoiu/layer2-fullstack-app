@@ -87,12 +87,7 @@ function handleCreateOrder(body: CreateOrderDto): HttpResponse<unknown> {
         id: `order-${mockOrderIdCounter++}`,
         userId: MOCK_USERS[0]?.id ?? 'user-1',
         createdAt: new Date().toISOString(),
-        address: {
-            country: 'USA',
-            city: 'Seattle',
-            county: 'King',
-            streetAddress: '123 Pine Street'
-        },
+        address: body.address,
         details
     };
 

@@ -1,5 +1,6 @@
 import { ProductDto } from '../../../core/types/dtos/product.dto';
 import { CreateOrderDto } from '../../../core/types/dtos/order.dto';
+import { AddressDto } from '../../../core/types/dtos/location.dto';
 import { CartItem } from '../types/cart-item.type';
 
 export function buildProductsById(products: ProductDto[]): Map<string, ProductDto> {
@@ -23,7 +24,7 @@ export function calculateLineTotal(quantity: number, price: number): string {
     return (quantity * price).toFixed(2);
 }
 
-export function toCreateOrderDto(items: CartItem[]): CreateOrderDto | null {
+export function toCreateOrderDto(items: CartItem[], address: AddressDto): CreateOrderDto | null {
     if (items.length === 0) {
         return null;
     }
@@ -32,6 +33,7 @@ export function toCreateOrderDto(items: CartItem[]): CreateOrderDto | null {
         items: items.map(item => ({
             productId: item.productId,
             quantity: item.quantity
-        }))
+        })),
+        address
     };
 }

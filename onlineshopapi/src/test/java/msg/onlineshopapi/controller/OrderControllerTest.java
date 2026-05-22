@@ -2,6 +2,7 @@ package msg.onlineshopapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import msg.onlineshopapi.config.TestSecurityConfig;
+import msg.onlineshopapi.dto.AddressDto;
 import msg.onlineshopapi.dto.OrderItemRequestDto;
 import msg.onlineshopapi.dto.OrderRequestDto;
 import msg.onlineshopapi.dto.OrderResponseDto;
@@ -101,6 +102,9 @@ class OrderControllerTest {
         OrderRequestDto request = OrderRequestDto.builder()
                 .items(List.of(OrderItemRequestDto.builder()
                         .productId(productId).quantity(2).build()))
+                .address(AddressDto.builder()
+                        .country("Romania").city("Cluj-Napoca")
+                        .county("Cluj").streetAddress("Str. Observatorului 72").build())
                 .build();
         Order entity = Order.builder().build();
         Order saved = Order.builder().id(orderId).build();
@@ -124,6 +128,9 @@ class OrderControllerTest {
         OrderRequestDto request = OrderRequestDto.builder()
                 .items(List.of(OrderItemRequestDto.builder()
                         .productId(productId).quantity(999).build()))
+                .address(AddressDto.builder()
+                        .country("Romania").city("Cluj-Napoca")
+                        .county("Cluj").streetAddress("Str. Observatorului 72").build())
                 .build();
         Order entity = Order.builder().build();
 

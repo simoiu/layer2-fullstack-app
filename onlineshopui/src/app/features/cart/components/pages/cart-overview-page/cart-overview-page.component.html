@@ -49,6 +49,68 @@
                             />
                         }
                     }
+
+                    <div class="rounded-lg border border-border bg-surface-2 p-6">
+                        <h2 class="text-lg font-semibold text-text mb-4">Delivery Address</h2>
+                        <form [formGroup]="addressForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-sm font-medium text-text" for="country">Country</label>
+                                <input
+                                    id="country"
+                                    type="text"
+                                    formControlName="country"
+                                    placeholder="e.g. Romania"
+                                    class="rounded-md border border-border bg-surface px-3 py-2 text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                                    [class.border-red-500]="addressForm.get('country')?.invalid && addressForm.get('country')?.touched"
+                                />
+                                @if (addressForm.get('country')?.invalid && addressForm.get('country')?.touched) {
+                                    <span class="text-xs text-red-500">Country is required.</span>
+                                }
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-sm font-medium text-text" for="county">County / State</label>
+                                <input
+                                    id="county"
+                                    type="text"
+                                    formControlName="county"
+                                    placeholder="e.g. Cluj"
+                                    class="rounded-md border border-border bg-surface px-3 py-2 text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                                    [class.border-red-500]="addressForm.get('county')?.invalid && addressForm.get('county')?.touched"
+                                />
+                                @if (addressForm.get('county')?.invalid && addressForm.get('county')?.touched) {
+                                    <span class="text-xs text-red-500">County is required.</span>
+                                }
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-sm font-medium text-text" for="city">City</label>
+                                <input
+                                    id="city"
+                                    type="text"
+                                    formControlName="city"
+                                    placeholder="e.g. Cluj-Napoca"
+                                    class="rounded-md border border-border bg-surface px-3 py-2 text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                                    [class.border-red-500]="addressForm.get('city')?.invalid && addressForm.get('city')?.touched"
+                                />
+                                @if (addressForm.get('city')?.invalid && addressForm.get('city')?.touched) {
+                                    <span class="text-xs text-red-500">City is required.</span>
+                                }
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-sm font-medium text-text" for="streetAddress">Street Address</label>
+                                <input
+                                    id="streetAddress"
+                                    type="text"
+                                    formControlName="streetAddress"
+                                    placeholder="e.g. Str. Observatorului 72"
+                                    class="rounded-md border border-border bg-surface px-3 py-2 text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                                    [class.border-red-500]="addressForm.get('streetAddress')?.invalid && addressForm.get('streetAddress')?.touched"
+                                />
+                                @if (addressForm.get('streetAddress')?.invalid && addressForm.get('streetAddress')?.touched) {
+                                    <span class="text-xs text-red-500">Street address is required.</span>
+                                }
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
                 <div>
