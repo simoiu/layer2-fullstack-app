@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "architecture-expert", "runs": [{"id": "eval-0-product-reviews-endpoint-with_skill", "prompt": "Where should I add a new REST endpoint for product reviews? Walk me through which files to touch.", "eval_id": 0, "outputs": [{"name": "response.md", "type": "text", "content": "# Architecture Expert Response: Where to Add a Product Reviews Endpoint\n\n## Work Transcript\n\n### Step 1: Read the skill file\nRead `E:\\Stuffs\\Work\\Projects\\layer2-fullstack-app\\.claude\\skills\\architecture-expert\\SKILL.md`. The skill instructs reading `references/ARCHITECTURE.md` at the start of every session, and provides a decision table: \"How do I add a new endpoint?\" \u00e2\u2020\u2019 migration \u00e2\u2020\u2019 entity \u00e2\u2020\u2019 repo \u00e2\u2020\u2019 DTO \u00e2\u2020\u2019 mapper \u00e2\u2020\u2019 service \u00e2\u2020\u2019 controller \u00e2\u2020\u2019 mock handler.\n\n### Step 2: Read the architecture reference\nRead `E:\\Stuffs\\Work\\Projects\\layer2-fullstack-app\\.claude\\skills\\architecture-expert\\references\\ARCHITECTURE.md`. Key findings:\n- Base package: `msg.onlineshopapi`\n- Controllers map to: `/products`, `/auth`, `/categories`, `/orders`\n- Existing entities: User, Product, ProductCategory, Location, Stock, Order, OrderDetail\n- Flyway migrations in `onlineshopapi/src/main/resources/db/migration/`; current latest is `V2__add_suppliers.sql`\n- Security: `permitAll` on `/products` and `/products/**` (public reads); write ops use `@PreAuthorize(\"hasRole('ADMIN')\")`\n- Frontend mocks: each feature has a handler in `core/mocks/interceptors/handlers/`\n\n### Step 3: Verified live code\nRead the following to confirm current state and patterns:\n- `ProductController.java` \u00e2\u20ac\u201d request flow, `@PreAuthorize` usage on writes\n- `ProductService.java` \u00e2\u20ac\u201d no business logic leaking into controller, throws `ResourceNotFoundException`\n- `SecurityConfig.java` \u00e2\u20ac\u201d current `permitAll` list: `/auth/register`, `/auth/login`, `/products`, `/products/**`, `/suppliers`\n- `V2__add_suppliers.sql` \u00e2\u20ac\u201d migration pattern; next migration must be `V3__...`\n- `ProductService.ts` \u00e2\u20ac\u201d Angular service: signals for state, `HttpClient` only in service, not component\n- `products-handler.mock.ts` \u00e2\u20ac\u201d mock handler pattern, path+method routing\n- `products.mock.ts` \u00e2\u20ac\u201d seed data pattern\n\n---\n\n## Response\n\nAdding product reviews touches every layer. Here is the exact sequence of files to create or modify, in order, with the rule that governs each one.\n\n---\n\n### 1. Database migration \u00e2\u20ac\u201d NEW FILE\n\n**File:** `onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql`\n\nThe current latest migration is `V2__add_suppliers.sql`. Next must be `V3`. `ddl-auto` is `validate`, so Flyway owns schema exclusively \u00e2\u20ac\u201d never skip this step.\n\n```sql\nCREATE TABLE product_reviews (\n    id          UUID         PRIMARY KEY,\n    product_id  UUID         NOT NULL REFERENCES products(id),\n    user_id     UUID         NOT NULL REFERENCES users(id),\n    rating      INT          NOT NULL CHECK (rating BETWEEN 1 AND 5),\n    comment     TEXT,\n    created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()\n);\n```\n\nUUID primary key matches the existing entity pattern (`User`, `Product`, `Order` all use UUID PKs).\n\n---\n\n### 2. JPA Entity \u00e2\u20ac\u201d NEW FILE\n\n**File:** `onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java`\n\n```java\npackage msg.onlineshopapi.model;\n\nimport jakarta.persistence.*;\nimport lombok.*;\nimport java.time.Instant;\nimport java.util.UUID;\n\n@Entity\n@Table(name = \"product_reviews\")\n@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder\npublic class ProductReview {\n\n    @Id\n    @GeneratedValue(strategy = GenerationType.UUID)\n    private UUID id;\n\n    @ManyToOne(optional = false)\n    @JoinColumn(name = \"product_id\", nullable = false)\n    private Product product;\n\n    @ManyToOne(optional = false)\n    @JoinColumn(name = \"user_id\", nullable = false)\n    private User user;\n\n    @Column(nullable = false)\n    private int rating;\n\n    private String comment;\n\n    @Column(name = \"created_at\", nullable = false, updatable = false)\n    private Instant createdAt;\n}\n```\n\n`@GeneratedValue(strategy = GenerationType.UUID)` matches `Product`, `Order`, `User`.\n\n---\n\n### 3. Repository \u00e2\u20ac\u201d NEW FILE\n\n**File:** `onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductReviewRepository.java`\n\n```java\npackage msg.onlineshopapi.repository;\n\nimport msg.onlineshopapi.model.ProductReview;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport java.util.List;\nimport java.util.UUID;\n\npublic interface ProductReviewRepository extends JpaRepository<ProductReview, UUID> {\n    List<ProductReview> findByProductId(UUID productId);\n}\n```\n\nRepositories are only accessed from the service layer. The controller never touches this.\n\n---\n\n### 4. DTOs \u00e2\u20ac\u201d NEW FILES (2)\n\n**File:** `onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java`\n\n```java\npackage msg.onlineshopapi.dto;\n\npublic record ProductReviewRequestDto(int rating, String comment) {}\n```\n\n**File:** `onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewResponseDto.java`\n\n```java\npackage msg.onlineshopapi.dto;\n\nimport java.time.Instant;\nimport java.util.UUID;\n\npublic record ProductReviewResponseDto(\n    UUID id,\n    UUID productId,\n    String reviewerName,   // derived from User.firstName + lastName\n    int rating,\n    String comment,\n    Instant createdAt\n) {}\n```\n\nEvery entity that crosses the API boundary needs a dedicated Request + Response DTO pair. The entity (`ProductReview`) must never leave the service layer.\n\n---\n\n### 5. Mapper \u00e2\u20ac\u201d NEW FILE\n\n**File:** `onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java`\n\n```java\npackage msg.onlineshopapi.dto.mapper;\n\nimport msg.onlineshopapi.dto.ProductReviewResponseDto;\nimport msg.onlineshopapi.model.ProductReview;\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class ProductReviewMapper {\n\n    public ProductReviewResponseDto toDto(ProductReview review) {\n        return new ProductReviewResponseDto(\n            review.getId(),\n            review.getProduct().getId(),\n            review.getUser().getFirstName() + \" \" + review.getUser().getLastName(),\n            review.getRating(),\n            review.getComment(),\n            review.getCreatedAt()\n        );\n    }\n}\n```\n\nAll entity-to-DTO conversion belongs in `dto/mapper/`. Never inline mapping in a controller or service.\n\n---\n\n### 6. Service \u00e2\u20ac\u201d NEW FILE\n\n**File:** `onlineshopapi/src/main/java/msg/onlineshopapi/service/ProductReviewService.java`\n\n```java\npackage msg.onlineshopapi.service;\n\nimport lombok.RequiredArgsConstructor;\nimport msg.onlineshopapi.exception.ResourceNotFoundException;\nimport msg.onlineshopapi.model.Product;\nimport msg.onlineshopapi.model.ProductReview;\nimport msg.onlineshopapi.model.User;\nimport msg.onlineshopapi.repository.ProductRepository;\nimport msg.onlineshopapi.repository.ProductReviewRepository;\nimport msg.onlineshopapi.repository.UserRepository;\nimport org.springframework.stereotype.Service;\nimport java.time.Instant;\nimport java.util.List;\nimport java.util.UUID;\n\n@Service\n@RequiredArgsConstructor\npublic class ProductReviewService {\n\n    private final ProductReviewRepository reviewRepository;\n    private final ProductRepository productRepository;\n    private final UserRepository userRepository;\n\n    public List<ProductReview> findByProductId(UUID productId) {\n        // validates product exists before listing reviews\n        if (!productRepository.existsById(productId)) {\n            throw new ResourceNotFoundException(\"Product not found with id: \" + productId);\n        }\n        return reviewRepository.findByProductId(productId);\n    }\n\n    public ProductReview create(UUID productId, String userEmail, int rating, String comment) {\n        Product product = productRepository.findById(productId)\n            .orElseThrow(() -> new ResourceNotFoundException(\"Product not found with id: \" + productId));\n        User user = userRepository.findByEmail(userEmail)\n            .orElseThrow(() -> new ResourceNotFoundException(\"User not found: \" + userEmail));\n\n        return reviewRepository.save(ProductReview.builder()\n            .product(product)\n            .user(user)\n            .rating(rating)\n            .comment(comment)\n            .createdAt(Instant.now())\n            .build());\n    }\n}\n```\n\nBusiness logic (validation, entity lookups) lives here, not in the controller. Throws `ResourceNotFoundException` \u00e2\u20ac\u201d `GlobalExceptionHandler` converts that to HTTP 404 automatically.\n\n---\n\n### 7. Controller \u00e2\u20ac\u201d NEW FILE\n\n**File:** `onlineshopapi/src/main/java/msg/onlineshopapi/controller/ProductReviewController.java`\n\n```java\npackage msg.onlineshopapi.controller;\n\nimport lombok.RequiredArgsConstructor;\nimport msg.onlineshopapi.dto.ProductReviewRequestDto;\nimport msg.onlineshopapi.dto.ProductReviewResponseDto;\nimport msg.onlineshopapi.dto.mapper.ProductReviewMapper;\nimport msg.onlineshopapi.service.ProductReviewService;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.security.core.annotation.AuthenticationPrincipal;\nimport org.springframework.security.core.userdetails.UserDetails;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\nimport java.util.UUID;\n\n@RestController\n@RequestMapping(\"/products/{productId}/reviews\")\n@RequiredArgsConstructor\npublic class ProductReviewController {\n\n    private final ProductReviewService reviewService;\n    private final ProductReviewMapper reviewMapper;\n\n    @GetMapping\n    public List<ProductReviewResponseDto> getReviews(@PathVariable UUID productId) {\n        return reviewService.findByProductId(productId).stream()\n            .map(reviewMapper::toDto)\n            .toList();\n    }\n\n    @PostMapping\n    @ResponseStatus(HttpStatus.CREATED)\n    public ProductReviewResponseDto createReview(\n            @PathVariable UUID productId,\n            @RequestBody ProductReviewRequestDto dto,\n            @AuthenticationPrincipal UserDetails userDetails) {\n        return reviewMapper.toDto(\n            reviewService.create(productId, userDetails.getUsername(), dto.rating(), dto.comment())\n        );\n    }\n}\n```\n\nController is HTTP-only: parses path variable + body, calls service, maps result. No business logic. The `UserDetails` principal comes from `JwtAuthFilter` which already runs before the controller.\n\n---\n\n### 8. Security \u00e2\u20ac\u201d MODIFY EXISTING FILE\n\n**File:** `onlineshopapi/src/main/java/msg/onlineshopapi/security/SecurityConfig.java`\n\nDecide on access model:\n- **GET reviews public** (anyone can read reviews, like product list): add `/products/*/reviews` to `permitAll`.\n- **POST review requires auth** (any authenticated user, not just ADMIN): this is already covered by `.anyRequest().authenticated()`. No `@PreAuthorize` needed on the POST.\n\nCurrent `permitAll` line:\n```java\n.requestMatchers(\"/auth/register\", \"/auth/login\",\n        \"/v3/api-docs/**\", \"/swagger-ui/**\", \"/swagger-ui.html\",\n        \"/products\", \"/products/**\", \"/suppliers\").permitAll()\n```\n\n`/products/**` already covers `/products/{id}/reviews` for GET. If you want GET to be public and POST to require login, that pattern already works because the `permitAll` on `GET /products/**` is not method-scoped here. However, `permitAll` currently allows all methods on `GET /products/**` \u00e2\u20ac\u201d you may want to tighten this later. For now, POST to a protected endpoint will still require a valid JWT because `JwtAuthFilter` validates before dispatch.\n\nIf you want to be explicit and safe, add a method-scoped matcher:\n```java\n.requestMatchers(HttpMethod.GET, \"/products\", \"/products/**\").permitAll()\n```\n\nThis is the safest option. Making write endpoints `permitAll` by accident is a security hole.\n\n---\n\n### 9. Frontend Angular Service \u00e2\u20ac\u201d MODIFY EXISTING FILE\n\n**File:** `onlineshopui/src/app/features/products/services/product.service.ts`\n\nAdd review signals and methods inside `ProductService`:\n\n```typescript\n// Add to signals section:\nprivate readonly _reviews = signal<ProductReviewDto[]>([]);\nreadonly reviews = this._reviews.asReadonly();\n\n// Add methods:\nloadReviews(productId: string): Observable<void> {\n    return this.http.get<ProductReviewDto[]>(`${this.productsUrl}/${productId}/reviews`).pipe(\n        tap(reviews => this._reviews.set(reviews)),\n        catchError(() => { this._reviews.set([]); return of([]); }),\n        map(() => undefined)\n    );\n}\n\nsubmitReview(productId: string, rating: number, comment: string): Observable<ProductReviewDto> {\n    return this.http.post<ProductReviewDto>(\n        `${this.productsUrl}/${productId}/reviews`,\n        { rating, comment }\n    );\n}\n```\n\nReviews are product-scoped, so they belong in `ProductService`. No new service file needed unless reviews grow into a standalone feature. HTTP calls go only through the service \u00e2\u20ac\u201d never call `HttpClient` in a component.\n\n---\n\n### 10. Frontend DTO \u00e2\u20ac\u201d NEW FILE\n\n**File:** `onlineshopui/src/app/core/types/dtos/product-review.dto.ts`\n\n```typescript\nexport interface ProductReviewDto {\n    id: string;\n    productId: string;\n    reviewerName: string;\n    rating: number;\n    comment: string | null;\n    createdAt: string; // ISO-8601\n}\n```\n\nThis is a cross-feature type (or at minimum needs to be imported by the product service). If it stays product-only, it can also live in `features/products/` \u00e2\u20ac\u201d but since it maps to an API contract, `core/types/dtos/` is the right home.\n\n---\n\n### 11. Mock handler \u00e2\u20ac\u201d MODIFY EXISTING FILE\n\n**File:** `onlineshopui/src/app/core/mocks/interceptors/handlers/products-handler.mock.ts`\n\nAdd review seed data to `core/mocks/data/products.mock.ts` and two new route branches in `handleProductsFeature`:\n\n```typescript\n// In handleProductsFeature, before the final `return null`:\nif (method === 'GET' && path.match(/^\\/products\\/[\\w-]+\\/reviews$/)) {\n    const productId = path.split('/')[2];\n    return handleGetReviews(productId);\n}\n\nif (method === 'POST' && path.match(/^\\/products\\/[\\w-]+\\/reviews$/)) {\n    const productId = path.split('/')[2];\n    return handleCreateReview(productId, body as { rating: number; comment: string });\n}\n```\n\nEvery new endpoint must have a mock handler. Mock mode must stay fully functional \u00e2\u20ac\u201d no empty arrays for seed data.\n\n---\n\n## Complete File Checklist\n\n| Step | Action | File |\n|------|--------|------|\n| 1 | CREATE | `onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql` |\n| 2 | CREATE | `onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java` |\n| 3 | CREATE | `onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductReviewRepository.java` |\n| 4 | CREATE | `onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java` |\n| 4 | CREATE | `onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewResponseDto.java` |\n| 5 | CREATE | `onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java` |\n| 6 | CREATE | `onlineshopapi/src/main/java/msg/onlineshopapi/service/ProductReviewService.java` |\n| 7 | CREATE | `onlineshopapi/src/main/java/msg/onlineshopapi/controller/ProductReviewController.java` |\n| 8 | MODIFY | `onlineshopapi/src/main/java/msg/onlineshopapi/security/SecurityConfig.java` |\n| 9 | MODIFY | `onlineshopui/src/app/features/products/services/product.service.ts` |\n| 10 | CREATE | `onlineshopui/src/app/core/types/dtos/product-review.dto.ts` |\n| 11 | MODIFY | `onlineshopui/src/app/core/mocks/interceptors/handlers/products-handler.mock.ts` |\n| 11 | MODIFY | `onlineshopui/src/app/core/mocks/data/products.mock.ts` |\n\n---\n\n## Rules Applied\n\n- **Layer boundaries upheld:** Controller has zero business logic. Service owns validation and orchestration. Repository accessed only from service.\n- **No entity escapes service:** `ProductReview` entity never returned from service; converted to DTO via mapper before controller returns.\n- **Mapper in `dto/mapper/`:** `ProductReviewMapper` lives where all other mappers live (`AuthMapper`, `ProductMapper`, `OrderMapper`, etc.).\n- **Typed exceptions only:** `ResourceNotFoundException` thrown from service; `GlobalExceptionHandler` maps it to 404.\n- **Flyway owns schema:** `V3__add_product_reviews.sql` is the only valid way to add the table. `ddl-auto` stays `validate`.\n- **UUID PKs:** Consistent with all existing entities.\n- **`@PreAuthorize` for role enforcement:** POST review does not need ADMIN-only access \u00e2\u20ac\u201d any authenticated user can submit. If ADMIN-only moderation endpoints are needed later, add `@PreAuthorize(\"hasRole('ADMIN')\")` on those methods.\n- **Security config explicit:** Tighten `permitAll` to `HttpMethod.GET` to avoid accidentally opening POST to unauthenticated callers.\n- **Signals in Angular service:** `_reviews` signal with `asReadonly()` exposure follows exact same pattern as `_products`, `_categories`, `_loading`, `_error` already in `ProductService`.\n- **Mock handler required:** `handleProductsFeature` extended with review routes; mock mode stays functional.\n"}], "grading": {"expectations": [{"text": "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper", "passed": true, "evidence": "Response explicitly covers all six layers: model (Step 2: ProductReview.java in model/), repository (Step 3: ProductReviewRepository.java in repository/), service (Step 6: ProductReviewService.java in service/), controller (Step 7: ProductReviewController.java in controller/), DTOs (Step 4: ProductReviewRequestDto.java and ProductReviewResponseDto.java in dto/), and mapper (Step 5: ProductReviewMapper.java in dto/mapper/)."}, {"text": "References the correct base package (msg.onlineshopapi) or the correct directory structure", "passed": true, "evidence": "All Java file paths use the correct base package 'msg.onlineshopapi' (e.g., 'onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java') and all package declarations start with 'package msg.onlineshopapi.*'."}, {"text": "Mentions that a Flyway migration file is needed for the schema change", "passed": true, "evidence": "Step 1 explicitly states: 'File: onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql' and notes 'ddl-auto is validate, so Flyway owns schema exclusively \u00e2\u20ac\u201d never skip this step.' Also in Rules Applied: 'Flyway owns schema: V3__add_product_reviews.sql is the only valid way to add the table.'"}, {"text": "Correctly locates DTOs in dto/ and mapper in dto/mapper/", "passed": true, "evidence": "DTOs are placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java' and 'msg/onlineshopapi/dto/ProductReviewResponseDto.java'. Mapper is placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java'. Step 5 notes: 'All entity-to-DTO conversion belongs in dto/mapper/.'"}, {"text": "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler", "passed": true, "evidence": "Step 9 adds Angular service methods (loadReviews and submitReview) to product.service.ts. Step 11 adds MSW mock handler routes to products-handler.mock.ts. The response states: 'Every new endpoint must have a mock handler. Mock mode must stay fully functional.'"}], "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}}}, {"id": "eval-0-product-reviews-endpoint-without_skill", "prompt": "Where should I add a new REST endpoint for product reviews? Walk me through which files to touch.", "eval_id": 0, "outputs": [{"name": "response.md", "type": "text", "content": "# Where to Add a New REST Endpoint for Product Reviews\n\n## Task\nThe user asked: \"Where should I add a new REST endpoint for product reviews? Walk me through which files to touch.\"\n\n## Exploration Transcript\n\nI explored the backend structure at `onlineshopapi/src/main/java/msg/onlineshopapi/` and found the following layers:\n- `controller/` \u00e2\u20ac\u201d REST endpoints (ProductController, OrderController, AuthController, etc.)\n- `service/` \u00e2\u20ac\u201d Business logic\n- `repository/` \u00e2\u20ac\u201d Spring Data JPA repositories\n- `model/` \u00e2\u20ac\u201d JPA entities\n- `dto/` \u00e2\u20ac\u201d Request/response DTOs\n- `dto/mapper/` \u00e2\u20ac\u201d Entity-to-DTO mappers\n- `exception/` \u00e2\u20ac\u201d Custom exceptions + GlobalExceptionHandler\n\nI also examined the frontend structure at `onlineshopui/src/app/features/products/`, noting:\n- `services/product.service.ts` \u00e2\u20ac\u201d Handles HTTP calls to `/products`\n- `products.routes.ts` \u00e2\u20ac\u201d Feature routes\n- `core/types/dtos/product.dto.ts` \u00e2\u20ac\u201d TypeScript DTO types\n\nI reviewed the Flyway migration files in `onlineshopapi/src/main/resources/db/migration/` to understand the versioning convention (V1, V2, V2.1 for local mock data).\n\nI examined `SecurityConfig.java` to understand which routes are public vs. authenticated.\n\n---\n\n## Answer\n\nAdding a product reviews endpoint follows the same layered pattern used throughout the codebase. Here is every file you need to touch, in order from database up to frontend.\n\n---\n\n### 1. Database Migration \u00e2\u20ac\u201d new Flyway SQL file\n\n**File to create:** `onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql`\n\n```sql\nCREATE TABLE product_reviews (\n    id          UUID          PRIMARY KEY,\n    product_id  UUID          NOT NULL REFERENCES products (id),\n    user_id     UUID          NOT NULL REFERENCES users (id),\n    rating      INTEGER       NOT NULL CHECK (rating BETWEEN 1 AND 5),\n    comment     VARCHAR(2000),\n    created_at  TIMESTAMP     NOT NULL\n);\n```\n\nIf you also need local mock data, add a companion file:\n`onlineshopapi/src/main/resources/db/migration/local/V3.1__populate_mock_reviews.sql`\n\n---\n\n### 2. JPA Entity\n\n**File to create:** `onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java`\n\nModel the `product_reviews` table. Reference the existing `Product.java` and `User.java` entities for the `@ManyToOne` relationships. Use `@GeneratedValue(strategy = GenerationType.UUID)` for the ID, and `@PrePersist` to set `createdAt` automatically (same pattern as `Order.java`).\n\n---\n\n### 3. Repository\n\n**File to create:** `onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductReviewRepository.java`\n\n```java\npublic interface ProductReviewRepository extends JpaRepository<ProductReview, UUID> {\n    List<ProductReview> findByProductId(UUID productId);\n}\n```\n\nAll existing repositories extend `JpaRepository` directly with no custom methods beyond what Spring Data derives. Follow the same pattern.\n\n---\n\n### 4. DTOs\n\n**File to create:** `onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java`\n\nFields: `productId` (UUID), `rating` (int), `comment` (String).\n\n**File to create:** `onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewResponseDto.java`\n\nFields: `id`, `productId`, `userId`, `rating`, `comment`, `createdAt`. Use Lombok `@Builder`, `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor` (same pattern as `ProductResponseDto.java`).\n\n---\n\n### 5. Mapper\n\n**File to create:** `onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java`\n\nAnnotate with `@Component`. Implement `toDto(ProductReview entity)` and `toEntity(ProductReviewRequestDto dto)`. Look at `ProductMapper.java` for the exact pattern \u00e2\u20ac\u201d it wires in other mappers via constructor injection and uses the builder pattern.\n\n---\n\n### 6. Service\n\n**File to create:** `onlineshopapi/src/main/java/msg/onlineshopapi/service/ProductReviewService.java`\n\nAnnotate with `@Service @RequiredArgsConstructor`. Inject `ProductReviewRepository`. Implement:\n- `findByProductId(UUID productId)` \u00e2\u20ac\u201d returns list of reviews for a product\n- `create(ProductReview review)` \u00e2\u20ac\u201d persists a new review\n\nFor the `create` method you will need to resolve the current user (via `Principal` passed from the controller or injected via `SecurityContextHolder`) and the target `Product` entity (via `ProductRepository`). Throw `ResourceNotFoundException` if the product doesn't exist \u00e2\u20ac\u201d that class already lives in `exception/`.\n\n---\n\n### 7. Controller\n\n**File to create:** `onlineshopapi/src/main/java/msg/onlineshopapi/controller/ProductReviewController.java`\n\n```java\n@RestController\n@RequestMapping(\"/products/{productId}/reviews\")\n@RequiredArgsConstructor\n@Tag(name = \"Product Reviews\", description = \"Product review management\")\npublic class ProductReviewController {\n\n    private final ProductReviewService productReviewService;\n    private final ProductReviewMapper productReviewMapper;\n\n    @GetMapping\n    public List<ProductReviewResponseDto> getByProduct(@PathVariable UUID productId) {\n        return productReviewService.findByProductId(productId).stream()\n                .map(productReviewMapper::toDto)\n                .toList();\n    }\n\n    @PostMapping\n    @ResponseStatus(HttpStatus.CREATED)\n    @PreAuthorize(\"hasAnyRole('CUSTOMER', 'ADMIN')\")\n    public ProductReviewResponseDto create(\n            @PathVariable UUID productId,\n            @RequestBody ProductReviewRequestDto dto,\n            Principal principal) {\n        // set productId and resolve user from principal inside service\n        return productReviewMapper.toDto(productReviewService.create(productId, dto, principal.getName()));\n    }\n}\n```\n\nThe `GET` endpoint (reading reviews) should be publicly accessible. The `POST` endpoint (submitting a review) requires authentication (`CUSTOMER` or `ADMIN`).\n\n---\n\n### 8. SecurityConfig \u00e2\u20ac\u201d allow public GET on reviews\n\n**File to edit:** `onlineshopapi/src/main/java/msg/onlineshopapi/security/SecurityConfig.java`\n\nIn the `securityFilterChain` method, add the reviews path to the `permitAll()` list:\n\n```java\n.requestMatchers(\n    \"/auth/register\", \"/auth/login\",\n    \"/v3/api-docs/**\", \"/swagger-ui/**\", \"/swagger-ui.html\",\n    \"/products\", \"/products/**\", \"/suppliers\"\n).permitAll()\n```\n\nSince the reviews endpoint is nested under `/products/**`, it is already covered by the existing `\"/products/**\"` permit. No change is needed here unless you place reviews at a top-level path like `/reviews`.\n\n---\n\n### 9. Frontend \u00e2\u20ac\u201d TypeScript DTO type\n\n**File to edit:** `onlineshopui/src/app/core/types/dtos/product.dto.ts`\n\nAdd new types:\n\n```typescript\nexport type ProductReviewDto = {\n    id: string;\n    productId: string;\n    userId: string;\n    rating: number;\n    comment: string;\n    createdAt: string;\n};\n\nexport type CreateReviewRequest = {\n    productId: string;\n    rating: number;\n    comment: string;\n};\n```\n\n---\n\n### 10. Frontend \u00e2\u20ac\u201d Review service methods\n\n**File to edit:** `onlineshopui/src/app/features/products/services/product.service.ts`\n\nAdd a new Angular service or extend the existing `ProductService` with methods:\n\n```typescript\nloadReviews(productId: string): Observable<ProductReviewDto[]> {\n    return this.http.get<ProductReviewDto[]>(`${this.productsUrl}/${productId}/reviews`);\n}\n\nsubmitReview(productId: string, data: CreateReviewRequest): Observable<ProductReviewDto> {\n    return this.http.post<ProductReviewDto>(`${this.productsUrl}/${productId}/reviews`, data);\n}\n```\n\nIf the reviews logic grows, extract it into a dedicated `review.service.ts` in the same `services/` folder.\n\n---\n\n### 11. Frontend \u00e2\u20ac\u201d UI component (optional but expected)\n\n**Directory to add to:** `onlineshopui/src/app/features/products/components/`\n\nCreate a `views/product-reviews/` component to display the reviews list and a form to submit a new review. Wire it into the existing `product-detail-page` component.\n\n---\n\n## Summary of files to touch\n\n| # | Action | File |\n|---|--------|------|\n| 1 | Create | `onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql` |\n| 2 | Create | `onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java` |\n| 3 | Create | `onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductReviewRepository.java` |\n| 4 | Create | `onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java` |\n| 5 | Create | `onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewResponseDto.java` |\n| 6 | Create | `onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java` |\n| 7 | Create | `onlineshopapi/src/main/java/msg/onlineshopapi/service/ProductReviewService.java` |\n| 8 | Create | `onlineshopapi/src/main/java/msg/onlineshopapi/controller/ProductReviewController.java` |\n| 9 | Edit (maybe) | `onlineshopapi/src/main/java/msg/onlineshopapi/security/SecurityConfig.java` |\n| 10 | Edit | `onlineshopui/src/app/core/types/dtos/product.dto.ts` |\n| 11 | Edit or create | `onlineshopui/src/app/features/products/services/product.service.ts` (or new `review.service.ts`) |\n| 12 | Create | `onlineshopui/src/app/features/products/components/views/product-reviews/` |\n"}], "grading": {"expectations": [{"text": "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper", "passed": true, "evidence": "Response explicitly covers all layers: model (Section 2: ProductReview.java), repository (Section 3: ProductReviewRepository.java), service (Section 6: ProductReviewService.java), controller (Section 7: ProductReviewController.java), DTOs (Section 4: ProductReviewRequestDto.java and ProductReviewResponseDto.java), and mapper (Section 5: ProductReviewMapper.java in dto/mapper/)."}, {"text": "References the correct base package (msg.onlineshopapi) or the correct directory structure", "passed": true, "evidence": "The response consistently references the correct base package throughout, e.g., 'onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java', 'onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductReviewRepository.java', and in the exploration transcript: 'I explored the backend structure at onlineshopapi/src/main/java/msg/onlineshopapi/'."}, {"text": "Mentions that a Flyway migration file is needed for the schema change", "passed": true, "evidence": "Section 1 explicitly states 'Database Migration \u00e2\u20ac\u201d new Flyway SQL file' and specifies the file 'onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql' with the full CREATE TABLE SQL."}, {"text": "Correctly locates DTOs in dto/ and mapper in dto/mapper/", "passed": true, "evidence": "DTOs are placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java' and 'dto/ProductReviewResponseDto.java'. Mapper is placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java'. Both match the correct locations."}, {"text": "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler", "passed": false, "evidence": "The response covers Angular service methods in Section 10 (loadReviews and submitReview in product.service.ts) and TypeScript DTO types in Section 9. However, it does not mention MSW (Mock Service Worker) mock handlers at all, which are required for the mock development configuration. The response fails to mention adding a mock handler to the core/mocks/ directory."}], "summary": {"passed": 4, "failed": 1, "total": 5, "pass_rate": 0.8}}}, {"id": "eval-1-auth-end-to-end-with_skill", "prompt": "How does auth work end-to-end in this app?", "eval_id": 1, "outputs": [{"name": "response.md", "type": "text", "content": "# How Auth Works End-to-End\n\nThis answer traces the full auth chain, from source code, following the architecture documented in `references/ARCHITECTURE.md` under **Request flows \u00e2\u2020\u2019 Login**.\n\n---\n\n## The five phases\n\n### 1. Registration\n\n**Endpoint:** `POST /api/auth/register` (public \u00e2\u20ac\u201d in `SecurityConfig.permitAll`)\n\n**Backend chain:**\n- `AuthController.register()` receives a `RegisterRequestDto`, calls `AuthMapper.toEntity()` to produce a `User` entity, then passes it to `AuthService.register()`.\n- `AuthService.register()` checks for a duplicate email (throws `DuplicateResourceException` \u00e2\u2020\u2019 409 if found), BCrypt-encodes the password via `PasswordEncoder`, forces the role to `CUSTOMER` (callers cannot self-assign `ADMIN`), and calls `UserRepository.save()`.\n- No token is issued. The controller returns `201 Created` with an empty body.\n\n**Frontend chain (`AuthService.register()`):**\n- Calls `POST /auth/register` with the form payload plus a hardcoded `roles: ['user']` field (ignored by the backend, which always assigns `CUSTOMER`).\n- On success, navigates to `/auth/login`. No token stored.\n\n---\n\n### 2. Login\n\n**Endpoint:** `POST /api/auth/login` (public)\n\n**Backend chain:**\n```\nPOST /auth/login (email, password)\n  \u00e2\u2020\u2019 AuthController.login()\n  \u00e2\u2020\u2019 AuthService.login(email, password)\n      \u00e2\u2020\u2019 AuthenticationManager.authenticate(UsernamePasswordAuthenticationToken)\n          \u00e2\u2020\u2019 DaoAuthenticationProvider\n              \u00e2\u2020\u2019 UserDetailsServiceImpl.loadUserByUsername(email)\n                  \u00e2\u2020\u2019 UserRepository.findByEmail(email) \u00e2\u2020\u2019 User entity\n                  \u00e2\u2020\u2019 builds Spring Security UserDetails with ROLE_{role} authority\n              \u00e2\u2020\u2019 BCryptPasswordEncoder.matches(rawPassword, hashedPassword)\n      \u00e2\u2020\u2019 JwtService.generateToken(userDetails)\n          \u00e2\u2020\u2019 HMAC-SHA key from JwtProperties.secret (Base64-decoded env var)\n          \u00e2\u2020\u2019 subject = email, expiry = JwtProperties.expiration (24h)\n  \u00e2\u2020\ufffd AuthResponseDto { access_token: \"<jwt>\" }\n```\n\n**Frontend chain (`AuthService.login()`):**\n- Calls `POST /auth/login`, gets back `{ access_token }`.\n- Calls `persistToken()`: sets the `token` signal and writes to `localStorage` under key `access_token`.\n- Immediately chains `fetchCurrentUser()` (`GET /auth/profile`) to populate the `user` signal and set `profileLoaded = true`.\n- Components that read `isAuthenticated` (a `computed` signal) immediately see `true`.\n\n---\n\n### 3. Token persistence and app restart\n\n**`app.config.ts` app initializer:**\n```\nprovideAppInitializer(() => {\n    authService.loadProfileIfNeeded().pipe(take(1)).subscribe();\n})\n```\n\nOn every page load/refresh:\n- `AuthService` constructor reads `localStorage.getItem('access_token')` into the `token` signal synchronously.\n- The app initializer calls `loadProfileIfNeeded()`, which \u00e2\u20ac\u201d if a token exists and the profile has not been loaded yet \u00e2\u20ac\u201d fires `GET /auth/profile` to re-hydrate the `user` signal.\n- If the token is expired, `JwtAuthFilter` will let the request through but set no authentication, Spring Security will reject the `/auth/profile` call with 401, and the Angular `HttpClient` error propagates (the app stays on the login screen with no profile loaded).\n\n---\n\n### 4. Attaching the token to every subsequent request\n\n**`authTokenInterceptor`** (`features/auth/interceptors/auth-token.interceptor.ts`):\n- Registered globally in `app.config.ts` via `withInterceptors([authTokenInterceptor, ...])`.\n- Reads `AuthService.getToken()` (the signal value) on every outgoing request.\n- If a token exists, clones the request and adds `Authorization: Bearer <token>`.\n- Services never add this header manually \u00e2\u20ac\u201d that is an architectural rule enforced by the interceptor.\n\n---\n\n### 5. Per-request validation on the backend\n\n**`JwtAuthFilter`** (`security/JwtAuthFilter.java`, extends `OncePerRequestFilter`):\n- Runs before `UsernamePasswordAuthenticationFilter` on every request.\n- Reads the `Authorization` header. If absent or not `Bearer ...`, passes through unauthenticated.\n- Extracts the token, calls `JwtService.extractUsername(token)` (reads the `sub` claim via JJWT parser).\n- If username is non-null and no auth is in `SecurityContext`: loads `UserDetails` from `UserDetailsServiceImpl`, calls `JwtService.isTokenValid(token, userDetails)` (checks username match + expiry), and sets a `UsernamePasswordAuthenticationToken` into `SecurityContextHolder`.\n- A caught `JwtException` results in the request proceeding unauthenticated (Spring Security rejects it downstream if the route requires auth).\n\n**`SecurityConfig`** governs what happens next:\n- `SessionCreationPolicy.STATELESS` \u00e2\u20ac\u201d no server-side session, ever.\n- `permitAll` list: `/auth/register`, `/auth/login`, Swagger endpoints, `GET /products/**`, `GET /suppliers`.\n- Everything else: `.anyRequest().authenticated()`.\n- Method-level: `@PreAuthorize(\"hasRole('ADMIN')\")` on write operations in `ProductController` and `ProductCategoryController`. This is checked after the filter chain sets `SecurityContext`.\n\n---\n\n## Frontend route protection\n\nThree guards, all in `features/auth/guards/`:\n\n| Guard | Check | Redirect on failure |\n|---|---|---|\n| `authGuard` | `authService.isAuthenticated()` (signal) | `/auth/login` |\n| `guestGuard` | `!authService.isAuthenticated()` | `/products/overview` |\n| `rolesGuard` | `authService.hasRole(route.data.roles)` (calls `loadProfileIfNeeded()` first) | `/products/overview` |\n\nRoute tree:\n- `/auth/**` is behind `guestGuard` \u00e2\u20ac\u201d authenticated users are bounced out.\n- `/` (root layout) is behind `authGuard` \u00e2\u20ac\u201d unauthenticated users are bounced to login.\n- `/products/create`, `/products/:id/edit` are additionally behind `rolesGuard` with `roles: ['ADMIN']`.\n\n**UI-level role visibility** uses `HasRoleDirective` (`appHasRole`): it calls `loadProfileIfNeeded()`, then creates or clears the embedded view based on `authService.hasRole(requiredRole)`. Admin-only buttons (e.g., \"Create product\") are hidden for customers at the template level without any logic in the component class.\n\n---\n\n## Logout\n\n`AuthService.logout()`:\n1. Calls `clearToken()` \u00e2\u20ac\u201d sets the signal to `null`, removes `access_token` from `localStorage`.\n2. Sets `user` signal to `null`, `profileLoaded` to `false`.\n3. Navigates to `/auth/login`.\n\nNo server-side call \u00e2\u20ac\u201d the token is stateless and expires naturally after 24h. The app is fully cleaned up locally.\n\n---\n\n## Key files (exact paths)\n\n**Backend:**\n- `onlineshopapi/src/main/java/msg/onlineshopapi/controller/AuthController.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/service/AuthService.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/security/JwtAuthFilter.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/security/JwtService.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/security/JwtProperties.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/security/SecurityConfig.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/security/UserDetailsServiceImpl.java`\n\n**Frontend:**\n- `onlineshopui/src/app/features/auth/services/auth.service.ts`\n- `onlineshopui/src/app/features/auth/interceptors/auth-token.interceptor.ts`\n- `onlineshopui/src/app/features/auth/guards/auth.guard.ts`\n- `onlineshopui/src/app/features/auth/guards/guest.guard.ts`\n- `onlineshopui/src/app/features/auth/guards/roles.guard.ts`\n- `onlineshopui/src/app/features/auth/directives/has-role.directive.ts`\n- `onlineshopui/src/app/app.config.ts`\n\n---\n\n## Summary diagram\n\n```\n[Register]\n  POST /auth/register \u00e2\u2020\u2019 AuthController \u00e2\u2020\u2019 AuthService (BCrypt + force CUSTOMER role) \u00e2\u2020\u2019 UserRepository\n\n[Login]\n  POST /auth/login \u00e2\u2020\u2019 AuthController \u00e2\u2020\u2019 AuthService \u00e2\u2020\u2019 AuthenticationManager\n    \u00e2\u2020\u2019 DaoAuthenticationProvider \u00e2\u2020\u2019 UserDetailsServiceImpl \u00e2\u2020\u2019 UserRepository\n    \u00e2\u2020\u2019 BCryptPasswordEncoder.matches()\n    \u00e2\u2020\u2019 JwtService.generateToken() (HMAC-SHA, 24h)\n  \u00e2\u2020\ufffd { access_token }\n  Frontend: persistToken() \u00e2\u2020\u2019 localStorage + signal; fetchCurrentUser() \u00e2\u2020\u2019 user signal\n\n[Every subsequent request]\n  authTokenInterceptor: adds Authorization: Bearer <token>\n  JwtAuthFilter: extracts token \u00e2\u2020\u2019 JwtService.extractUsername() \u00e2\u2020\u2019 UserDetailsService.loadByEmail()\n    \u00e2\u2020\u2019 JwtService.isTokenValid() \u00e2\u2020\u2019 SecurityContextHolder.setAuthentication()\n  SecurityConfig: session = STATELESS, public endpoints = permitAll, rest = authenticated\n  @PreAuthorize(\"hasRole('ADMIN')\"): method-level on write endpoints\n\n[Route protection]\n  authGuard (signal check) | guestGuard (inverse) | rolesGuard (profile load + hasRole)\n  HasRoleDirective: template-level visibility for role-gated UI elements\n\n[Logout]\n  clearToken() \u00e2\u2020\u2019 signal null + localStorage.remove \u00e2\u2020\u2019 navigate /auth/login\n```\n"}], "grading": {"expectations": [{"text": "Mentions the login endpoint (POST /auth/login or /api/auth/login)", "passed": true, "evidence": "\"Endpoint: POST /api/auth/login (public)\" explicitly stated in Phase 2 (Login), and also shown in the summary diagram as \"POST /auth/login \u00e2\u2020\u2019 AuthController ...\""}, {"text": "Mentions JWT token generation (JwtService or equivalent)", "passed": true, "evidence": "\"JwtService.generateToken(userDetails)\" is shown in the backend login chain, and the key file \"onlineshopapi/.../security/JwtService.java\" is listed. The summary diagram also shows \"JwtService.generateToken() (HMAC-SHA, 24h)\"."}, {"text": "Mentions localStorage as where the token is stored on the frontend", "passed": true, "evidence": "\"Calls persistToken(): sets the token signal and writes to localStorage under key access_token\" in Phase 2 frontend chain. Also: \"AuthService constructor reads localStorage.getItem('access_token') into the token signal synchronously\" in Phase 3."}, {"text": "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header", "passed": true, "evidence": "Phase 4 is titled \"Attaching the token to every subsequent request\" and states: \"authTokenInterceptor (features/auth/interceptors/auth-token.interceptor.ts): ... If a token exists, clones the request and adds Authorization: Bearer <token>.\""}, {"text": "Mentions JwtAuthFilter as the backend token validation component", "passed": true, "evidence": "Phase 5 is titled \"Per-request validation on the backend\" and opens with \"JwtAuthFilter (security/JwtAuthFilter.java, extends OncePerRequestFilter): Runs before UsernamePasswordAuthenticationFilter on every request...\""}, {"text": "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement", "passed": true, "evidence": "\"Method-level: @PreAuthorize(\\\"hasRole('ADMIN')\\\") on write operations in ProductController and ProductCategoryController.\" Also: registration forces \"role to CUSTOMER\", and rolesGuard uses \"roles: ['ADMIN']\"."}, {"text": "Mentions Angular guards (authGuard and/or rolesGuard) for route protection", "passed": true, "evidence": "The \"Frontend route protection\" section explicitly lists all three guards in a table: authGuard, guestGuard, and rolesGuard, with their checks and redirect behaviors."}], "summary": {"passed": 7, "failed": 0, "total": 7, "pass_rate": 1.0}}}, {"id": "eval-1-auth-end-to-end-without_skill", "prompt": "How does auth work end-to-end in this app?", "eval_id": 1, "outputs": [{"name": "response.md", "type": "text", "content": "# How Auth Works End-to-End in This App\n\n## Overview\n\nThe app uses **JWT (JSON Web Token)** based stateless authentication. The backend is Spring Boot, the frontend is Angular. Here is the complete flow from registration through protected route access.\n\n---\n\n## 1. Registration\n\n**Frontend:**\n- The user fills in a register form (`RegisterPageComponent`) with `firstName`, `lastName`, `email`, `password`.\n- The component calls `AuthService.register()`, which POSTs to `/auth/register`.\n- On success, the user is redirected to the login page.\n\n**Backend:**\n- `POST /auth/register` is a public endpoint (no JWT required \u00e2\u20ac\u201d listed in `SecurityConfig` as `permitAll()`).\n- `AuthController.register()` receives a `RegisterRequestDto`, maps it to a `User` entity via `AuthMapper`.\n- `AuthService.register()` checks for duplicate email, BCrypt-encodes the password, sets the role to `CUSTOMER` (hardcoded \u00e2\u20ac\u201d users can only self-register as customers), and saves the user.\n\n---\n\n## 2. Login\n\n**Frontend:**\n- The user fills in `LoginPageComponent` with `email` and `password`.\n- `AuthService.login()` POSTs `{ email, password }` to `/auth/login`.\n- On success, the JWT `access_token` is stored in `localStorage` (key: `access_token`) via `persistToken()`.\n- Immediately after storing the token, `fetchCurrentUser()` is called which GETs `/auth/profile` to populate the `user` signal with the full user profile (including role).\n- The user is then navigated to the products overview.\n\n**Backend:**\n- `POST /auth/login` is a public endpoint (`permitAll()`).\n- `AuthController.login()` calls `AuthService.login(email, password)`.\n- `AuthService.login()` calls `authenticationManager.authenticate()` with a `UsernamePasswordAuthenticationToken` \u00e2\u20ac\u201d this triggers Spring Security's `DaoAuthenticationProvider`, which calls `UserDetailsServiceImpl.loadUserByUsername(email)` to look up the user and BCrypt-verify the password.\n- If credentials are valid, `JwtService.generateToken()` creates a signed JWT with the email as subject, issued-at timestamp, and expiration.\n- The response is `{ \"access_token\": \"<jwt>\" }`.\n\n---\n\n## 3. Token Structure\n\nThe JWT is an HMAC-SHA signed token using a secret key configured in `app.jwt.secret` (`JwtProperties`). It contains:\n- **subject**: the user's email address\n- **issuedAt**: timestamp of generation\n- **expiration**: `issuedAt + app.jwt.expiration` (milliseconds)\n\nNo roles are embedded in the token itself \u00e2\u20ac\u201d role lookup on the backend always goes to the database via `UserDetailsServiceImpl`.\n\n---\n\n## 4. Authenticated Requests (Interceptor)\n\n**Frontend:**\n- `authTokenInterceptor` (registered as an `HttpInterceptorFn` in `app.config.ts`) runs on every HTTP request.\n- If a token exists in `AuthService`, it clones the request and adds the `Authorization: Bearer <token>` header.\n\n**Backend:**\n- `JwtAuthFilter` (a `OncePerRequestFilter`) intercepts every request.\n- It reads the `Authorization` header, strips the `Bearer ` prefix, and calls `JwtService.extractUsername(token)` to get the email.\n- If the email is non-null and there is no existing authentication in the `SecurityContextHolder`, it loads `UserDetails` from the database, validates the token (username match + not expired), and sets a `UsernamePasswordAuthenticationToken` in the security context.\n- Invalid or missing tokens are silently ignored \u00e2\u20ac\u201d the filter chain continues unauthenticated, and Spring Security will reject the request at the authorization layer if the endpoint requires authentication.\n\n---\n\n## 5. Role-Based Authorization\n\n**Backend:**\n- `SecurityConfig` enables `@EnableMethodSecurity`, so controllers can use `@PreAuthorize`.\n- Admin-only operations (create/update/delete products and categories) are annotated with `@PreAuthorize(\"hasRole('ADMIN')\")`.\n- `UserDetailsServiceImpl` maps the `UserRole` enum to a Spring granted authority as `ROLE_<role>` (e.g., `ROLE_ADMIN`, `ROLE_CUSTOMER`).\n\n**Frontend:**\n- `rolesGuard` protects routes that require a specific role. It reads `route.data.roles`, calls `loadProfileIfNeeded()` to ensure the user profile is loaded, then calls `authService.hasRole()`. Unauthorized users are redirected to the products overview.\n- `HasRoleDirective` (`*appHasRole=\"UserRole.ADMIN\"`) conditionally renders template content based on the user's role \u00e2\u20ac\u201d used to show/hide UI elements like admin-only action buttons.\n- `authService.roles` is a computed signal derived from the loaded `user` signal, returning an array with the user's single role.\n\n---\n\n## 6. Route Guards Summary\n\n| Guard | Purpose | Behavior |\n|---|---|---|\n| `authGuard` | Protects all main app routes | Redirects to `/auth/login` if not authenticated |\n| `guestGuard` | Protects login/register routes | Redirects to `/products/overview` if already authenticated |\n| `rolesGuard` | Protects role-restricted routes | Redirects to `/products/overview` if role check fails |\n\nThe root route layout (everything under `''`) is wrapped with `canActivate: [authGuard]`, so all feature routes (products, cart, orders) require a valid token.\n\n---\n\n## 7. App Startup (Token Persistence)\n\nWhen the Angular app boots, `app.config.ts` registers a `provideAppInitializer` that calls `authService.loadProfileIfNeeded()`. This:\n- Reads any existing token from `localStorage` (populated in `AuthService` constructor via `readTokenFromStorage()`).\n- If a token exists, fetches `/auth/profile` to reload the user's profile into the `user` signal.\n- This restores auth state across page refreshes without requiring a re-login.\n\n---\n\n## 8. Logout\n\n`AuthService.logout()`:\n- Clears the token from the `token` signal and `localStorage`.\n- Sets `user` to null and `profileLoaded` to false.\n- Navigates to `/auth/login`.\n\n---\n\n## End-to-End Flow Diagram\n\n```\nUSER                    ANGULAR FRONTEND                    SPRING BOOT BACKEND\n |                            |                                     |\n |-- fill register form ----->|                                     |\n |                            |-- POST /auth/register ------------->|\n |                            |                         validate, hash pw, save user\n |                            |<-- 201 Created -------------------- |\n |                            |-- navigate to /auth/login           |\n |                            |                                     |\n |-- fill login form -------->|                                     |\n |                            |-- POST /auth/login ---------------->|\n |                            |              AuthService.login()    |\n |                            |              authenticate via DaoAuthenticationProvider\n |                            |              JwtService.generateToken()\n |                            |<-- { access_token: \"...\" } --------|\n |                            |-- persist token to localStorage     |\n |                            |-- GET /auth/profile (+ Bearer hdr)->|\n |                            |              JwtAuthFilter validates token\n |                            |              sets SecurityContext\n |                            |<-- { id, email, role, ... } -------|\n |                            |-- navigate to /products/overview    |\n |                            |                                     |\n |-- navigate to /orders ---->|                                     |\n |                            |-- authGuard checks token            |\n |                            |-- GET /orders (+ Bearer hdr) ------>|\n |                            |              JwtAuthFilter validates\n |                            |              @PreAuthorize checks role (if applicable)\n |                            |<-- orders data --------------------|\n```\n"}], "grading": {"expectations": [{"text": "Mentions the login endpoint (POST /auth/login or /api/auth/login)", "passed": true, "evidence": "\"POST /auth/login is a public endpoint (permitAll()).\" and \"AuthService.login() POSTs { email, password } to /auth/login.\""}, {"text": "Mentions JWT token generation (JwtService or equivalent)", "passed": true, "evidence": "\"JwtService.generateToken() creates a signed JWT with the email as subject, issued-at timestamp, and expiration.\""}, {"text": "Mentions localStorage as where the token is stored on the frontend", "passed": true, "evidence": "\"On success, the JWT access_token is stored in localStorage (key: access_token) via persistToken().\""}, {"text": "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header", "passed": true, "evidence": "\"authTokenInterceptor (registered as an HttpInterceptorFn in app.config.ts) runs on every HTTP request. If a token exists in AuthService, it clones the request and adds the Authorization: Bearer <token> header.\""}, {"text": "Mentions JwtAuthFilter as the backend token validation component", "passed": true, "evidence": "\"JwtAuthFilter (a OncePerRequestFilter) intercepts every request. It reads the Authorization header, strips the Bearer prefix, and calls JwtService.extractUsername(token) to get the email.\""}, {"text": "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement", "passed": true, "evidence": "\"Admin-only operations (create/update/delete products and categories) are annotated with @PreAuthorize(\\\"hasRole('ADMIN')\\\").\" and \"sets the role to CUSTOMER (hardcoded \u00e2\u20ac\u201d users can only self-register as customers)\" and \"UserDetailsServiceImpl maps the UserRole enum to a Spring granted authority as ROLE_<role> (e.g., ROLE_ADMIN, ROLE_CUSTOMER).\""}, {"text": "Mentions Angular guards (authGuard and/or rolesGuard) for route protection", "passed": true, "evidence": "\"rolesGuard protects routes that require a specific role.\" and \"authGuard: Protects all main app routes \u00e2\u20ac\u201d Redirects to /auth/login if not authenticated\" (in Route Guards Summary table)."}], "summary": {"passed": 7, "failed": 0, "total": 7, "pass_rate": 1.0}}}, {"id": "eval-2-warehouse-strategy-with_skill", "prompt": "What pattern does the app use to pick which warehouse fulfills an order, and where is it configured?", "eval_id": 2, "outputs": [{"name": "response.md", "type": "text", "content": "# Task: What pattern does the app use to pick which warehouse fulfills an order, and where is it configured?\n\n## Work Transcript\n\n### Step 1: Read SKILL.md\nRead the skill at `.claude/skills/architecture-expert/SKILL.md`. The skill instructs reading `references/ARCHITECTURE.md` at the start of every session.\n\n### Step 2: Read ARCHITECTURE.md reference\nRead `.claude/skills/architecture-expert/references/ARCHITECTURE.md`. Found the \"Order fulfillment strategy\" section documenting the `OrderStrategy` interface and two implementations.\n\n### Step 3: Read source files for ground truth\nRead the following source files:\n- `onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/OrderStrategy.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/OrderStrategyConfig.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/SingleLocationStrategy.java`\n- `onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/MostAbundantStrategy.java`\n- `onlineshopapi/src/main/resources/application.yml`\n\n---\n\n## Answer\n\nThe app uses the **Strategy pattern** for warehouse (fulfillment location) selection.\n\n### The interface\n\n```java\n// msg.onlineshopapi.service.strategy.OrderStrategy\npublic interface OrderStrategy {\n    List<Stock> findStocks(Set<OrderDetail> orderDetails);\n}\n```\n\n`OrderService.createOrder` calls `orderStrategy.findStocks(orderDetails)` \u00e2\u20ac\u201d it never knows which warehouse algorithm is active.\n\n### The two implementations\n\n| Class | Behavior |\n|---|---|\n| `SingleLocationStrategy` | Finds all warehouses that stock every product in the order, then picks the first one that meets all quantity requirements. If no single warehouse can fulfill the whole order, throws `OrderNotProcessableException`. |\n| `MostAbundantStrategy` | For each product independently, picks the warehouse with the highest stock for that product. Products in the same order can ship from different warehouses. Also throws `OrderNotProcessableException` if no warehouse has enough stock for a given product. |\n\n### Where it's configured\n\n**`application.yml`** (line 29\u00e2\u20ac\u201c30):\n\n```yaml\napp:\n  order:\n    strategy: SINGLE_LOCATION\n```\n\nChange the value to `MOST_ABUNDANT` to switch strategies. Both enum values are declared in `OrderStrategyConfig.Strategy`.\n\n**`OrderStrategyConfig`** (`service/strategy/OrderStrategyConfig.java`) reads that property via `@Value(\"${app.order.strategy}\")` and uses a `@Bean` factory method to instantiate and register the correct strategy:\n\n```java\n@Bean\npublic OrderStrategy orderStrategy() {\n    if (orderStrategy == Strategy.MOST_ABUNDANT) {\n        return new MostAbundantStrategy(stockRepository);\n    }\n    return new SingleLocationStrategy(stockRepository);\n}\n```\n\n### Extension rule\n\nPer the architectural rules: adding a new warehouse-selection behavior means adding a new `OrderStrategy` implementation class. Never add a conditional branch inside an existing strategy. Register the new bean in `OrderStrategyConfig` and add its enum value to `OrderStrategyConfig.Strategy`.\n\n### File locations\n\n| File | Path |\n|---|---|\n| Interface | `onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/OrderStrategy.java` |\n| Strategy 1 | `onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/SingleLocationStrategy.java` |\n| Strategy 2 | `onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/MostAbundantStrategy.java` |\n| Config bean | `onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/OrderStrategyConfig.java` |\n| Property | `onlineshopapi/src/main/resources/application.yml` \u00e2\u2020\u2019 `app.order.strategy` |\n"}], "grading": {"expectations": [{"text": "Correctly identifies the Strategy design pattern", "passed": true, "evidence": "\"The app uses the **Strategy pattern** for warehouse (fulfillment location) selection.\""}, {"text": "Names at least one concrete strategy implementation class", "passed": true, "evidence": "Names both: \"SingleLocationStrategy\" and \"MostAbundantStrategy\" with full class paths listed in the file locations table."}, {"text": "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)", "passed": true, "evidence": "Explicitly names both: \"| `SingleLocationStrategy` | Finds all warehouses that stock every product...\" and \"| `MostAbundantStrategy` | For each product independently, picks the warehouse with the highest stock...\""}, {"text": "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)", "passed": true, "evidence": "\"**`application.yml`** (line 29\u00e2\u20ac\u201c30): ... app:\\n  order:\\n    strategy: SINGLE_LOCATION\" and explicitly notes \"Property | `onlineshopapi/src/main/resources/application.yml` \u00e2\u2020\u2019 `app.order.strategy`\""}, {"text": "Explains the behavioral difference between the two strategies", "passed": true, "evidence": "\"SingleLocationStrategy: Finds all warehouses that stock every product in the order, then picks the first one that meets all quantity requirements. If no single warehouse can fulfill the whole order, throws OrderNotProcessableException.\" vs \"MostAbundantStrategy: For each product independently, picks the warehouse with the highest stock for that product. Products in the same order can ship from different warehouses.\""}], "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}}}, {"id": "eval-2-warehouse-strategy-without_skill", "prompt": "What pattern does the app use to pick which warehouse fulfills an order, and where is it configured?", "eval_id": 2, "outputs": [{"name": "response.md", "type": "text", "content": "# Warehouse Fulfillment Strategy\n\n## Pattern: Strategy Pattern\n\nThe app uses the **Strategy design pattern** to decide which warehouse (called a \"location\" in the codebase) fulfills an order. The strategy is abstracted behind the `OrderStrategy` interface and injected into `OrderService`. Switching strategies requires only a config value change \u00e2\u20ac\u201d no code changes.\n\n---\n\n## How It Works\n\n### Interface\n\n`onlineshopapi/src/main/java/msg/onlineshopapi/service/strategy/OrderStrategy.java`\n\n```java\npublic interface OrderStrategy {\n    List<Stock> findStocks(Set<OrderDetail> orderDetails);\n}\n```\n\n`OrderService` calls `orderStrategy.findStocks(orderDetails)` to get a list of `Stock` records (each linking a product to a location/warehouse and a quantity). It then sets the `shippedFrom` field on each `OrderDetail` to whichever location was selected.\n\n---\n\n## Two Concrete Strategies\n\n### 1. `SINGLE_LOCATION` (default)\n\n**File:** `service/strategy/SingleLocationStrategy.java`\n\nTries to fulfill the entire order from **one single warehouse**. Steps:\n1. Queries for all location IDs that have stock for **all** ordered products (`findLocationIdsHavingAllProducts`).\n2. Among those candidates, selects the first location that also has sufficient quantity for every item.\n3. Throws `OrderNotProcessableException` if no single location can satisfy the full order.\n\n**Use case:** Minimizes the number of shipments \u00e2\u20ac\u201d the customer receives everything from one place.\n\n### 2. `MOST_ABUNDANT`\n\n**File:** `service/strategy/MostAbundantStrategy.java`\n\nFulfills each ordered product **independently** from the warehouse that holds the most stock for that product. Steps:\n1. For each product, queries for the location with the maximum quantity (`findMaxStockLocations`).\n2. Each product can therefore come from a different warehouse.\n3. Throws `OrderNotProcessableException` if the best-stocked location for any product still doesn't have enough to cover the ordered quantity.\n\n**Use case:** Maximizes the chance of order fulfillment by spreading across warehouses.\n\n---\n\n## Configuration\n\nThe active strategy is selected by a single property in `application.yml`:\n\n**File:** `onlineshopapi/src/main/resources/application.yml`\n\n```yaml\napp:\n  order:\n    strategy: SINGLE_LOCATION\n```\n\nThe value is read in `OrderStrategyConfig` (`service/strategy/OrderStrategyConfig.java`) via `@Value(\"${app.order.strategy}\")`. At startup, a Spring `@Bean` of type `OrderStrategy` is created based on this value:\n\n```java\n@Bean\npublic OrderStrategy orderStrategy() {\n    if (orderStrategy == Strategy.MOST_ABUNDANT) {\n        return new MostAbundantStrategy(stockRepository);\n    }\n    return new SingleLocationStrategy(stockRepository);  // default\n}\n```\n\nTo switch strategies, change the property to `MOST_ABUNDANT` (in `application.yml` or override it in `application-local.yml` for local dev). No code changes are needed.\n\n---\n\n## Summary\n\n| Aspect | Detail |\n|---|---|\n| Pattern | Strategy (Gang of Four) |\n| Interface | `OrderStrategy` in `service/strategy/` |\n| Implementations | `SingleLocationStrategy`, `MostAbundantStrategy` |\n| Factory / wiring | `OrderStrategyConfig` (`@Configuration` + `@Bean`) |\n| Config property | `app.order.strategy` in `application.yml` |\n| Default value | `SINGLE_LOCATION` |\n| Consumer | `OrderService.createOrder()` |\n\n---\n\n## Work Transcript\n\nFiles examined to produce this answer:\n\n1. `service/strategy/OrderStrategy.java` \u00e2\u20ac\u201d interface definition\n2. `service/strategy/OrderStrategyConfig.java` \u00e2\u20ac\u201d `@Configuration` that reads the property and wires the correct bean\n3. `service/strategy/SingleLocationStrategy.java` \u00e2\u20ac\u201d single-warehouse fulfillment implementation\n4. `service/strategy/MostAbundantStrategy.java` \u00e2\u20ac\u201d per-product most-stocked-warehouse implementation\n5. `service/OrderService.java` \u00e2\u20ac\u201d confirmed the strategy is called at `orderStrategy.findStocks(orderDetails)` and that the resulting location is stored as `shippedFrom` on each `OrderDetail`\n6. `repository/StockRepository.java` \u00e2\u20ac\u201d JPQL queries backing each strategy (`findLocationIdsHavingAllProducts`, `findMaxStockLocations`)\n7. `src/main/resources/application.yml` \u00e2\u20ac\u201d confirmed `app.order.strategy: SINGLE_LOCATION` is the live default\n8. `src/main/resources/application-local.yml` \u00e2\u20ac\u201d confirmed no local override of the strategy property\n"}], "grading": {"expectations": [{"text": "Correctly identifies the Strategy design pattern", "passed": true, "evidence": "The response opens with 'The app uses the **Strategy design pattern**' and the summary table lists 'Strategy (Gang of Four)' as the pattern."}, {"text": "Names at least one concrete strategy implementation class", "passed": true, "evidence": "Names 'SingleLocationStrategy' (file: service/strategy/SingleLocationStrategy.java) and 'MostAbundantStrategy' (file: service/strategy/MostAbundantStrategy.java)."}, {"text": "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)", "passed": true, "evidence": "Both strategies are named explicitly: 'SingleLocationStrategy' and 'MostAbundantStrategy', with dedicated sections for each and file paths provided."}, {"text": "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)", "passed": true, "evidence": "Response states 'File: onlineshopapi/src/main/resources/application.yml' and shows the YAML snippet with 'app: order: strategy: SINGLE_LOCATION'. Also mentions 'app.order.strategy' as the property key in the summary table and in the @Value annotation reference."}, {"text": "Explains the behavioral difference between the two strategies", "passed": true, "evidence": "SingleLocationStrategy: 'Tries to fulfill the entire order from one single warehouse... Minimizes the number of shipments'. MostAbundantStrategy: 'Fulfills each ordered product independently from the warehouse that holds the most stock... Each product can therefore come from a different warehouse... Maximizes the chance of order fulfillment by spreading across warehouses.'"}], "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "architecture-expert", "skill_path": "<path/to/skill>", "executor_model": "<model-name>", "analyzer_model": "<model-name>", "timestamp": "2026-06-04T08:57:32Z", "evals_run": [0, 1, 2], "runs_per_configuration": 3}, "runs": [{"eval_id": 0, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 5, "failed": 0, "total": 5, "time_seconds": 153.5, "tokens": 37872, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper", "passed": true, "evidence": "Response explicitly covers all six layers: model (Step 2: ProductReview.java in model/), repository (Step 3: ProductReviewRepository.java in repository/), service (Step 6: ProductReviewService.java in service/), controller (Step 7: ProductReviewController.java in controller/), DTOs (Step 4: ProductReviewRequestDto.java and ProductReviewResponseDto.java in dto/), and mapper (Step 5: ProductReviewMapper.java in dto/mapper/)."}, {"text": "References the correct base package (msg.onlineshopapi) or the correct directory structure", "passed": true, "evidence": "All Java file paths use the correct base package 'msg.onlineshopapi' (e.g., 'onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java') and all package declarations start with 'package msg.onlineshopapi.*'."}, {"text": "Mentions that a Flyway migration file is needed for the schema change", "passed": true, "evidence": "Step 1 explicitly states: 'File: onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql' and notes 'ddl-auto is validate, so Flyway owns schema exclusively \u00e2\u20ac\u201d never skip this step.' Also in Rules Applied: 'Flyway owns schema: V3__add_product_reviews.sql is the only valid way to add the table.'"}, {"text": "Correctly locates DTOs in dto/ and mapper in dto/mapper/", "passed": true, "evidence": "DTOs are placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java' and 'msg/onlineshopapi/dto/ProductReviewResponseDto.java'. Mapper is placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java'. Step 5 notes: 'All entity-to-DTO conversion belongs in dto/mapper/.'"}, {"text": "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler", "passed": true, "evidence": "Step 9 adds Angular service methods (loadReviews and submitReview) to product.service.ts. Step 11 adds MSW mock handler routes to products-handler.mock.ts. The response states: 'Every new endpoint must have a mock handler. Mock mode must stay fully functional.'"}], "notes": []}, {"eval_id": 1, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 7, "failed": 0, "total": 7, "time_seconds": 120.9, "tokens": 33272, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Mentions the login endpoint (POST /auth/login or /api/auth/login)", "passed": true, "evidence": "\"Endpoint: POST /api/auth/login (public)\" explicitly stated in Phase 2 (Login), and also shown in the summary diagram as \"POST /auth/login \u00e2\u2020\u2019 AuthController ...\""}, {"text": "Mentions JWT token generation (JwtService or equivalent)", "passed": true, "evidence": "\"JwtService.generateToken(userDetails)\" is shown in the backend login chain, and the key file \"onlineshopapi/.../security/JwtService.java\" is listed. The summary diagram also shows \"JwtService.generateToken() (HMAC-SHA, 24h)\"."}, {"text": "Mentions localStorage as where the token is stored on the frontend", "passed": true, "evidence": "\"Calls persistToken(): sets the token signal and writes to localStorage under key access_token\" in Phase 2 frontend chain. Also: \"AuthService constructor reads localStorage.getItem('access_token') into the token signal synchronously\" in Phase 3."}, {"text": "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header", "passed": true, "evidence": "Phase 4 is titled \"Attaching the token to every subsequent request\" and states: \"authTokenInterceptor (features/auth/interceptors/auth-token.interceptor.ts): ... If a token exists, clones the request and adds Authorization: Bearer <token>.\""}, {"text": "Mentions JwtAuthFilter as the backend token validation component", "passed": true, "evidence": "Phase 5 is titled \"Per-request validation on the backend\" and opens with \"JwtAuthFilter (security/JwtAuthFilter.java, extends OncePerRequestFilter): Runs before UsernamePasswordAuthenticationFilter on every request...\""}, {"text": "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement", "passed": true, "evidence": "\"Method-level: @PreAuthorize(\\\"hasRole('ADMIN')\\\") on write operations in ProductController and ProductCategoryController.\" Also: registration forces \"role to CUSTOMER\", and rolesGuard uses \"roles: ['ADMIN']\"."}, {"text": "Mentions Angular guards (authGuard and/or rolesGuard) for route protection", "passed": true, "evidence": "The \"Frontend route protection\" section explicitly lists all three guards in a table: authGuard, guestGuard, and rolesGuard, with their checks and redirect behaviors."}], "notes": []}, {"eval_id": 2, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 5, "failed": 0, "total": 5, "time_seconds": 56.9, "tokens": 23544, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Correctly identifies the Strategy design pattern", "passed": true, "evidence": "\"The app uses the **Strategy pattern** for warehouse (fulfillment location) selection.\""}, {"text": "Names at least one concrete strategy implementation class", "passed": true, "evidence": "Names both: \"SingleLocationStrategy\" and \"MostAbundantStrategy\" with full class paths listed in the file locations table."}, {"text": "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)", "passed": true, "evidence": "Explicitly names both: \"| `SingleLocationStrategy` | Finds all warehouses that stock every product...\" and \"| `MostAbundantStrategy` | For each product independently, picks the warehouse with the highest stock...\""}, {"text": "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)", "passed": true, "evidence": "\"**`application.yml`** (line 29\u00e2\u20ac\u201c30): ... app:\\n  order:\\n    strategy: SINGLE_LOCATION\" and explicitly notes \"Property | `onlineshopapi/src/main/resources/application.yml` \u00e2\u2020\u2019 `app.order.strategy`\""}, {"text": "Explains the behavioral difference between the two strategies", "passed": true, "evidence": "\"SingleLocationStrategy: Finds all warehouses that stock every product in the order, then picks the first one that meets all quantity requirements. If no single warehouse can fulfill the whole order, throws OrderNotProcessableException.\" vs \"MostAbundantStrategy: For each product independently, picks the warehouse with the highest stock for that product. Products in the same order can ship from different warehouses.\""}], "notes": []}, {"eval_id": 0, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.8, "passed": 4, "failed": 1, "total": 5, "time_seconds": 125.4, "tokens": 32042, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper", "passed": true, "evidence": "Response explicitly covers all layers: model (Section 2: ProductReview.java), repository (Section 3: ProductReviewRepository.java), service (Section 6: ProductReviewService.java), controller (Section 7: ProductReviewController.java), DTOs (Section 4: ProductReviewRequestDto.java and ProductReviewResponseDto.java), and mapper (Section 5: ProductReviewMapper.java in dto/mapper/)."}, {"text": "References the correct base package (msg.onlineshopapi) or the correct directory structure", "passed": true, "evidence": "The response consistently references the correct base package throughout, e.g., 'onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java', 'onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductReviewRepository.java', and in the exploration transcript: 'I explored the backend structure at onlineshopapi/src/main/java/msg/onlineshopapi/'."}, {"text": "Mentions that a Flyway migration file is needed for the schema change", "passed": true, "evidence": "Section 1 explicitly states 'Database Migration \u00e2\u20ac\u201d new Flyway SQL file' and specifies the file 'onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql' with the full CREATE TABLE SQL."}, {"text": "Correctly locates DTOs in dto/ and mapper in dto/mapper/", "passed": true, "evidence": "DTOs are placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java' and 'dto/ProductReviewResponseDto.java'. Mapper is placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java'. Both match the correct locations."}, {"text": "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler", "passed": false, "evidence": "The response covers Angular service methods in Section 10 (loadReviews and submitReview in product.service.ts) and TypeScript DTO types in Section 9. However, it does not mention MSW (Mock Service Worker) mock handlers at all, which are required for the mock development configuration. The response fails to mention adding a mock handler to the core/mocks/ directory."}], "notes": []}, {"eval_id": 1, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 7, "failed": 0, "total": 7, "time_seconds": 123.0, "tokens": 33516, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Mentions the login endpoint (POST /auth/login or /api/auth/login)", "passed": true, "evidence": "\"POST /auth/login is a public endpoint (permitAll()).\" and \"AuthService.login() POSTs { email, password } to /auth/login.\""}, {"text": "Mentions JWT token generation (JwtService or equivalent)", "passed": true, "evidence": "\"JwtService.generateToken() creates a signed JWT with the email as subject, issued-at timestamp, and expiration.\""}, {"text": "Mentions localStorage as where the token is stored on the frontend", "passed": true, "evidence": "\"On success, the JWT access_token is stored in localStorage (key: access_token) via persistToken().\""}, {"text": "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header", "passed": true, "evidence": "\"authTokenInterceptor (registered as an HttpInterceptorFn in app.config.ts) runs on every HTTP request. If a token exists in AuthService, it clones the request and adds the Authorization: Bearer <token> header.\""}, {"text": "Mentions JwtAuthFilter as the backend token validation component", "passed": true, "evidence": "\"JwtAuthFilter (a OncePerRequestFilter) intercepts every request. It reads the Authorization header, strips the Bearer prefix, and calls JwtService.extractUsername(token) to get the email.\""}, {"text": "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement", "passed": true, "evidence": "\"Admin-only operations (create/update/delete products and categories) are annotated with @PreAuthorize(\\\"hasRole('ADMIN')\\\").\" and \"sets the role to CUSTOMER (hardcoded \u00e2\u20ac\u201d users can only self-register as customers)\" and \"UserDetailsServiceImpl maps the UserRole enum to a Spring granted authority as ROLE_<role> (e.g., ROLE_ADMIN, ROLE_CUSTOMER).\""}, {"text": "Mentions Angular guards (authGuard and/or rolesGuard) for route protection", "passed": true, "evidence": "\"rolesGuard protects routes that require a specific role.\" and \"authGuard: Protects all main app routes \u00e2\u20ac\u201d Redirects to /auth/login if not authenticated\" (in Route Guards Summary table)."}], "notes": []}, {"eval_id": 2, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 5, "failed": 0, "total": 5, "time_seconds": 60.8, "tokens": 21107, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Correctly identifies the Strategy design pattern", "passed": true, "evidence": "The response opens with 'The app uses the **Strategy design pattern**' and the summary table lists 'Strategy (Gang of Four)' as the pattern."}, {"text": "Names at least one concrete strategy implementation class", "passed": true, "evidence": "Names 'SingleLocationStrategy' (file: service/strategy/SingleLocationStrategy.java) and 'MostAbundantStrategy' (file: service/strategy/MostAbundantStrategy.java)."}, {"text": "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)", "passed": true, "evidence": "Both strategies are named explicitly: 'SingleLocationStrategy' and 'MostAbundantStrategy', with dedicated sections for each and file paths provided."}, {"text": "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)", "passed": true, "evidence": "Response states 'File: onlineshopapi/src/main/resources/application.yml' and shows the YAML snippet with 'app: order: strategy: SINGLE_LOCATION'. Also mentions 'app.order.strategy' as the property key in the summary table and in the @Value annotation reference."}, {"text": "Explains the behavioral difference between the two strategies", "passed": true, "evidence": "SingleLocationStrategy: 'Tries to fulfill the entire order from one single warehouse... Minimizes the number of shipments'. MostAbundantStrategy: 'Fulfills each ordered product independently from the warehouse that holds the most stock... Each product can therefore come from a different warehouse... Maximizes the chance of order fulfillment by spreading across warehouses.'"}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 110.4333, "stddev": 49.1432, "min": 56.9, "max": 153.5}, "tokens": {"mean": 31562.6667, "stddev": 7315.3442, "min": 23544, "max": 37872}}, "without_skill": {"pass_rate": {"mean": 0.9333, "stddev": 0.1155, "min": 0.8, "max": 1.0}, "time_seconds": {"mean": 103.0667, "stddev": 36.6237, "min": 60.8, "max": 125.4}, "tokens": {"mean": 28888.3333, "stddev": 6779.014, "min": 21107, "max": 33516}}, "delta": {"pass_rate": "+0.07", "time_seconds": "+7.4", "tokens": "+2674"}}, "notes": []}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

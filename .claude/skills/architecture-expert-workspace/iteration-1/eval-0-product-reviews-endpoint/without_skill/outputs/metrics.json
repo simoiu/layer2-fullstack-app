@@ -1,0 +1,51 @@
+{
+  "tool_calls": {
+    "Bash": 14,
+    "Read": 15,
+    "Write": 2,
+    "Edit": 0,
+    "Grep": 0,
+    "Glob": 0,
+    "Skill": 0,
+    "ToolSearch": 0
+  },
+  "total_tool_calls": 31,
+  "files_read": [
+    "onlineshopapi/src/main/java/msg/onlineshopapi/controller/ProductController.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/model/Product.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/service/ProductService.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductMapper.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/exception/GlobalExceptionHandler.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductRepository.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductResponseDto.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductRequestDto.java",
+    "onlineshopapi/src/main/resources/db/migration/V1__create_tables.sql",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/model/User.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/model/Order.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/security/SecurityConfig.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/controller/OrderController.java",
+    "onlineshopui/src/app/features/products/services/product.service.ts",
+    "onlineshopui/src/app/features/products/products.routes.ts",
+    "onlineshopui/src/app/core/types/dtos/product.dto.ts"
+  ],
+  "directories_listed": [
+    "root",
+    "onlineshopapi/src/main/java/msg/onlineshopapi",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/controller",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/model",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/service",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/repository",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/dto",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/exception",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/security",
+    "onlineshopapi/src/main/resources/db/migration",
+    "onlineshopapi/src/main/resources/db/migration/local",
+    "onlineshopui/src/app/features/products",
+    "onlineshopui/src/app/features/products/services",
+    "onlineshopui/src/app/features/products/types",
+    "onlineshopui/src/app/core/types/dtos",
+    "onlineshopui/src/app/features/products/components",
+    "onlineshopui/src/app/features/products/components/pages"
+  ]
+}

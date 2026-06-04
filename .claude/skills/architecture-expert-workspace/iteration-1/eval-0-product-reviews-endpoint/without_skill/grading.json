@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper",
+      "passed": true,
+      "evidence": "Response explicitly covers all layers: model (Section 2: ProductReview.java), repository (Section 3: ProductReviewRepository.java), service (Section 6: ProductReviewService.java), controller (Section 7: ProductReviewController.java), DTOs (Section 4: ProductReviewRequestDto.java and ProductReviewResponseDto.java), and mapper (Section 5: ProductReviewMapper.java in dto/mapper/)."
+    },
+    {
+      "text": "References the correct base package (msg.onlineshopapi) or the correct directory structure",
+      "passed": true,
+      "evidence": "The response consistently references the correct base package throughout, e.g., 'onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java', 'onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductReviewRepository.java', and in the exploration transcript: 'I explored the backend structure at onlineshopapi/src/main/java/msg/onlineshopapi/'."
+    },
+    {
+      "text": "Mentions that a Flyway migration file is needed for the schema change",
+      "passed": true,
+      "evidence": "Section 1 explicitly states 'Database Migration — new Flyway SQL file' and specifies the file 'onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql' with the full CREATE TABLE SQL."
+    },
+    {
+      "text": "Correctly locates DTOs in dto/ and mapper in dto/mapper/",
+      "passed": true,
+      "evidence": "DTOs are placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java' and 'dto/ProductReviewResponseDto.java'. Mapper is placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java'. Both match the correct locations."
+    },
+    {
+      "text": "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler",
+      "passed": false,
+      "evidence": "The response covers Angular service methods in Section 10 (loadReviews and submitReview in product.service.ts) and TypeScript DTO types in Section 9. However, it does not mention MSW (Mock Service Worker) mock handlers at all, which are required for the mock development configuration. The response fails to mention adding a mock handler to the core/mocks/ directory."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 1,
+    "total": 5,
+    "pass_rate": 0.8
+  }
+}

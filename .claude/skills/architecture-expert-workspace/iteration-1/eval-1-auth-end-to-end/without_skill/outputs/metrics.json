@@ -1,0 +1,37 @@
+{
+  "tool_calls": {
+    "Glob": 9,
+    "Read": 18,
+    "Grep": 1,
+    "Write": 2,
+    "Bash": 1,
+    "total": 31
+  },
+  "files_read": [
+    "onlineshopapi/src/main/java/msg/onlineshopapi/security/SecurityConfig.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/security/JwtService.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/security/JwtAuthFilter.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/security/UserDetailsServiceImpl.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/security/JwtProperties.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/controller/AuthController.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/service/AuthService.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/dto/AuthResponseDto.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/dto/LoginRequestDto.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/dto/RegisterRequestDto.java",
+    "onlineshopapi/src/main/java/msg/onlineshopapi/model/User.java",
+    "onlineshopui/src/app/features/auth/services/auth.service.ts",
+    "onlineshopui/src/app/features/auth/interceptors/auth-token.interceptor.ts",
+    "onlineshopui/src/app/features/auth/guards/auth.guard.ts",
+    "onlineshopui/src/app/features/auth/guards/roles.guard.ts",
+    "onlineshopui/src/app/features/auth/guards/guest.guard.ts",
+    "onlineshopui/src/app/features/auth/directives/has-role.directive.ts",
+    "onlineshopui/src/app/features/auth/components/login-page/login-page.component.ts",
+    "onlineshopui/src/app/features/auth/components/register-page/register-page.component.ts",
+    "onlineshopui/src/app/core/types/dtos/auth.dto.ts",
+    "onlineshopui/src/app/core/types/enums/user-roles.enum.ts",
+    "onlineshopui/src/app/app.routes.ts",
+    "onlineshopui/src/app/features/auth/auth.routes.ts",
+    "onlineshopui/src/app/app.config.ts"
+  ],
+  "notes": "1 Bash call was denied (mkdir). The Write tool created parent directories automatically."
+}

@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "auth-end-to-end",
+  "prompt": "How does auth work end-to-end in this app?",
+  "assertions": [
+    "Mentions the login endpoint (POST /auth/login or /api/auth/login)",
+    "Mentions JWT token generation (JwtService or equivalent)",
+    "Mentions localStorage as where the token is stored on the frontend",
+    "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header",
+    "Mentions JwtAuthFilter as the backend token validation component",
+    "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement",
+    "Mentions Angular guards (authGuard and/or rolesGuard) for route protection"
+  ]
+}

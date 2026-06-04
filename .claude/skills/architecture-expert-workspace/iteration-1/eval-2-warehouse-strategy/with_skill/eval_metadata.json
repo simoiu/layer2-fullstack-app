@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "warehouse-strategy",
+  "prompt": "What pattern does the app use to pick which warehouse fulfills an order, and where is it configured?",
+  "assertions": [
+    "Correctly identifies the Strategy design pattern",
+    "Names at least one concrete strategy implementation class",
+    "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)",
+    "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)",
+    "Explains the behavioral difference between the two strategies"
+  ]
+}

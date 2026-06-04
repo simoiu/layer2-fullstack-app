@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Mentions the login endpoint (POST /auth/login or /api/auth/login)",
+      "passed": true,
+      "evidence": "\"POST /auth/login is a public endpoint (permitAll()).\" and \"AuthService.login() POSTs { email, password } to /auth/login.\""
+    },
+    {
+      "text": "Mentions JWT token generation (JwtService or equivalent)",
+      "passed": true,
+      "evidence": "\"JwtService.generateToken() creates a signed JWT with the email as subject, issued-at timestamp, and expiration.\""
+    },
+    {
+      "text": "Mentions localStorage as where the token is stored on the frontend",
+      "passed": true,
+      "evidence": "\"On success, the JWT access_token is stored in localStorage (key: access_token) via persistToken().\""
+    },
+    {
+      "text": "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header",
+      "passed": true,
+      "evidence": "\"authTokenInterceptor (registered as an HttpInterceptorFn in app.config.ts) runs on every HTTP request. If a token exists in AuthService, it clones the request and adds the Authorization: Bearer <token> header.\""
+    },
+    {
+      "text": "Mentions JwtAuthFilter as the backend token validation component",
+      "passed": true,
+      "evidence": "\"JwtAuthFilter (a OncePerRequestFilter) intercepts every request. It reads the Authorization header, strips the Bearer prefix, and calls JwtService.extractUsername(token) to get the email.\""
+    },
+    {
+      "text": "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement",
+      "passed": true,
+      "evidence": "\"Admin-only operations (create/update/delete products and categories) are annotated with @PreAuthorize(\\\"hasRole('ADMIN')\\\").\" and \"sets the role to CUSTOMER (hardcoded — users can only self-register as customers)\" and \"UserDetailsServiceImpl maps the UserRole enum to a Spring granted authority as ROLE_<role> (e.g., ROLE_ADMIN, ROLE_CUSTOMER).\""
+    },
+    {
+      "text": "Mentions Angular guards (authGuard and/or rolesGuard) for route protection",
+      "passed": true,
+      "evidence": "\"rolesGuard protects routes that require a specific role.\" and \"authGuard: Protects all main app routes — Redirects to /auth/login if not authenticated\" (in Route Guards Summary table)."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  }
+}

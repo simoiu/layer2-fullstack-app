@@ -1,0 +1,343 @@
+{
+  "metadata": {
+    "skill_name": "architecture-expert",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-06-04T08:57:32Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 153.5,
+        "tokens": 37872,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper",
+          "passed": true,
+          "evidence": "Response explicitly covers all six layers: model (Step 2: ProductReview.java in model/), repository (Step 3: ProductReviewRepository.java in repository/), service (Step 6: ProductReviewService.java in service/), controller (Step 7: ProductReviewController.java in controller/), DTOs (Step 4: ProductReviewRequestDto.java and ProductReviewResponseDto.java in dto/), and mapper (Step 5: ProductReviewMapper.java in dto/mapper/)."
+        },
+        {
+          "text": "References the correct base package (msg.onlineshopapi) or the correct directory structure",
+          "passed": true,
+          "evidence": "All Java file paths use the correct base package 'msg.onlineshopapi' (e.g., 'onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java') and all package declarations start with 'package msg.onlineshopapi.*'."
+        },
+        {
+          "text": "Mentions that a Flyway migration file is needed for the schema change",
+          "passed": true,
+          "evidence": "Step 1 explicitly states: 'File: onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql' and notes 'ddl-auto is validate, so Flyway owns schema exclusively \u00e2\u20ac\u201d never skip this step.' Also in Rules Applied: 'Flyway owns schema: V3__add_product_reviews.sql is the only valid way to add the table.'"
+        },
+        {
+          "text": "Correctly locates DTOs in dto/ and mapper in dto/mapper/",
+          "passed": true,
+          "evidence": "DTOs are placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java' and 'msg/onlineshopapi/dto/ProductReviewResponseDto.java'. Mapper is placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java'. Step 5 notes: 'All entity-to-DTO conversion belongs in dto/mapper/.'"
+        },
+        {
+          "text": "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler",
+          "passed": true,
+          "evidence": "Step 9 adds Angular service methods (loadReviews and submitReview) to product.service.ts. Step 11 adds MSW mock handler routes to products-handler.mock.ts. The response states: 'Every new endpoint must have a mock handler. Mock mode must stay fully functional.'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 120.9,
+        "tokens": 33272,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Mentions the login endpoint (POST /auth/login or /api/auth/login)",
+          "passed": true,
+          "evidence": "\"Endpoint: POST /api/auth/login (public)\" explicitly stated in Phase 2 (Login), and also shown in the summary diagram as \"POST /auth/login \u00e2\u2020\u2019 AuthController ...\""
+        },
+        {
+          "text": "Mentions JWT token generation (JwtService or equivalent)",
+          "passed": true,
+          "evidence": "\"JwtService.generateToken(userDetails)\" is shown in the backend login chain, and the key file \"onlineshopapi/.../security/JwtService.java\" is listed. The summary diagram also shows \"JwtService.generateToken() (HMAC-SHA, 24h)\"."
+        },
+        {
+          "text": "Mentions localStorage as where the token is stored on the frontend",
+          "passed": true,
+          "evidence": "\"Calls persistToken(): sets the token signal and writes to localStorage under key access_token\" in Phase 2 frontend chain. Also: \"AuthService constructor reads localStorage.getItem('access_token') into the token signal synchronously\" in Phase 3."
+        },
+        {
+          "text": "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header",
+          "passed": true,
+          "evidence": "Phase 4 is titled \"Attaching the token to every subsequent request\" and states: \"authTokenInterceptor (features/auth/interceptors/auth-token.interceptor.ts): ... If a token exists, clones the request and adds Authorization: Bearer <token>.\""
+        },
+        {
+          "text": "Mentions JwtAuthFilter as the backend token validation component",
+          "passed": true,
+          "evidence": "Phase 5 is titled \"Per-request validation on the backend\" and opens with \"JwtAuthFilter (security/JwtAuthFilter.java, extends OncePerRequestFilter): Runs before UsernamePasswordAuthenticationFilter on every request...\""
+        },
+        {
+          "text": "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement",
+          "passed": true,
+          "evidence": "\"Method-level: @PreAuthorize(\\\"hasRole('ADMIN')\\\") on write operations in ProductController and ProductCategoryController.\" Also: registration forces \"role to CUSTOMER\", and rolesGuard uses \"roles: ['ADMIN']\"."
+        },
+        {
+          "text": "Mentions Angular guards (authGuard and/or rolesGuard) for route protection",
+          "passed": true,
+          "evidence": "The \"Frontend route protection\" section explicitly lists all three guards in a table: authGuard, guestGuard, and rolesGuard, with their checks and redirect behaviors."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 56.9,
+        "tokens": 23544,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Correctly identifies the Strategy design pattern",
+          "passed": true,
+          "evidence": "\"The app uses the **Strategy pattern** for warehouse (fulfillment location) selection.\""
+        },
+        {
+          "text": "Names at least one concrete strategy implementation class",
+          "passed": true,
+          "evidence": "Names both: \"SingleLocationStrategy\" and \"MostAbundantStrategy\" with full class paths listed in the file locations table."
+        },
+        {
+          "text": "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)",
+          "passed": true,
+          "evidence": "Explicitly names both: \"| `SingleLocationStrategy` | Finds all warehouses that stock every product...\" and \"| `MostAbundantStrategy` | For each product independently, picks the warehouse with the highest stock...\""
+        },
+        {
+          "text": "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)",
+          "passed": true,
+          "evidence": "\"**`application.yml`** (line 29\u00e2\u20ac\u201c30): ... app:\\n  order:\\n    strategy: SINGLE_LOCATION\" and explicitly notes \"Property | `onlineshopapi/src/main/resources/application.yml` \u00e2\u2020\u2019 `app.order.strategy`\""
+        },
+        {
+          "text": "Explains the behavioral difference between the two strategies",
+          "passed": true,
+          "evidence": "\"SingleLocationStrategy: Finds all warehouses that stock every product in the order, then picks the first one that meets all quantity requirements. If no single warehouse can fulfill the whole order, throws OrderNotProcessableException.\" vs \"MostAbundantStrategy: For each product independently, picks the warehouse with the highest stock for that product. Products in the same order can ship from different warehouses.\""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 125.4,
+        "tokens": 32042,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper",
+          "passed": true,
+          "evidence": "Response explicitly covers all layers: model (Section 2: ProductReview.java), repository (Section 3: ProductReviewRepository.java), service (Section 6: ProductReviewService.java), controller (Section 7: ProductReviewController.java), DTOs (Section 4: ProductReviewRequestDto.java and ProductReviewResponseDto.java), and mapper (Section 5: ProductReviewMapper.java in dto/mapper/)."
+        },
+        {
+          "text": "References the correct base package (msg.onlineshopapi) or the correct directory structure",
+          "passed": true,
+          "evidence": "The response consistently references the correct base package throughout, e.g., 'onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java', 'onlineshopapi/src/main/java/msg/onlineshopapi/repository/ProductReviewRepository.java', and in the exploration transcript: 'I explored the backend structure at onlineshopapi/src/main/java/msg/onlineshopapi/'."
+        },
+        {
+          "text": "Mentions that a Flyway migration file is needed for the schema change",
+          "passed": true,
+          "evidence": "Section 1 explicitly states 'Database Migration \u00e2\u20ac\u201d new Flyway SQL file' and specifies the file 'onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql' with the full CREATE TABLE SQL."
+        },
+        {
+          "text": "Correctly locates DTOs in dto/ and mapper in dto/mapper/",
+          "passed": true,
+          "evidence": "DTOs are placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java' and 'dto/ProductReviewResponseDto.java'. Mapper is placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java'. Both match the correct locations."
+        },
+        {
+          "text": "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler",
+          "passed": false,
+          "evidence": "The response covers Angular service methods in Section 10 (loadReviews and submitReview in product.service.ts) and TypeScript DTO types in Section 9. However, it does not mention MSW (Mock Service Worker) mock handlers at all, which are required for the mock development configuration. The response fails to mention adding a mock handler to the core/mocks/ directory."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 123.0,
+        "tokens": 33516,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Mentions the login endpoint (POST /auth/login or /api/auth/login)",
+          "passed": true,
+          "evidence": "\"POST /auth/login is a public endpoint (permitAll()).\" and \"AuthService.login() POSTs { email, password } to /auth/login.\""
+        },
+        {
+          "text": "Mentions JWT token generation (JwtService or equivalent)",
+          "passed": true,
+          "evidence": "\"JwtService.generateToken() creates a signed JWT with the email as subject, issued-at timestamp, and expiration.\""
+        },
+        {
+          "text": "Mentions localStorage as where the token is stored on the frontend",
+          "passed": true,
+          "evidence": "\"On success, the JWT access_token is stored in localStorage (key: access_token) via persistToken().\""
+        },
+        {
+          "text": "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header",
+          "passed": true,
+          "evidence": "\"authTokenInterceptor (registered as an HttpInterceptorFn in app.config.ts) runs on every HTTP request. If a token exists in AuthService, it clones the request and adds the Authorization: Bearer <token> header.\""
+        },
+        {
+          "text": "Mentions JwtAuthFilter as the backend token validation component",
+          "passed": true,
+          "evidence": "\"JwtAuthFilter (a OncePerRequestFilter) intercepts every request. It reads the Authorization header, strips the Bearer prefix, and calls JwtService.extractUsername(token) to get the email.\""
+        },
+        {
+          "text": "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement",
+          "passed": true,
+          "evidence": "\"Admin-only operations (create/update/delete products and categories) are annotated with @PreAuthorize(\\\"hasRole('ADMIN')\\\").\" and \"sets the role to CUSTOMER (hardcoded \u00e2\u20ac\u201d users can only self-register as customers)\" and \"UserDetailsServiceImpl maps the UserRole enum to a Spring granted authority as ROLE_<role> (e.g., ROLE_ADMIN, ROLE_CUSTOMER).\""
+        },
+        {
+          "text": "Mentions Angular guards (authGuard and/or rolesGuard) for route protection",
+          "passed": true,
+          "evidence": "\"rolesGuard protects routes that require a specific role.\" and \"authGuard: Protects all main app routes \u00e2\u20ac\u201d Redirects to /auth/login if not authenticated\" (in Route Guards Summary table)."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 60.8,
+        "tokens": 21107,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Correctly identifies the Strategy design pattern",
+          "passed": true,
+          "evidence": "The response opens with 'The app uses the **Strategy design pattern**' and the summary table lists 'Strategy (Gang of Four)' as the pattern."
+        },
+        {
+          "text": "Names at least one concrete strategy implementation class",
+          "passed": true,
+          "evidence": "Names 'SingleLocationStrategy' (file: service/strategy/SingleLocationStrategy.java) and 'MostAbundantStrategy' (file: service/strategy/MostAbundantStrategy.java)."
+        },
+        {
+          "text": "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)",
+          "passed": true,
+          "evidence": "Both strategies are named explicitly: 'SingleLocationStrategy' and 'MostAbundantStrategy', with dedicated sections for each and file paths provided."
+        },
+        {
+          "text": "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)",
+          "passed": true,
+          "evidence": "Response states 'File: onlineshopapi/src/main/resources/application.yml' and shows the YAML snippet with 'app: order: strategy: SINGLE_LOCATION'. Also mentions 'app.order.strategy' as the property key in the summary table and in the @Value annotation reference."
+        },
+        {
+          "text": "Explains the behavioral difference between the two strategies",
+          "passed": true,
+          "evidence": "SingleLocationStrategy: 'Tries to fulfill the entire order from one single warehouse... Minimizes the number of shipments'. MostAbundantStrategy: 'Fulfills each ordered product independently from the warehouse that holds the most stock... Each product can therefore come from a different warehouse... Maximizes the chance of order fulfillment by spreading across warehouses.'"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 110.4333,
+        "stddev": 49.1432,
+        "min": 56.9,
+        "max": 153.5
+      },
+      "tokens": {
+        "mean": 31562.6667,
+        "stddev": 7315.3442,
+        "min": 23544,
+        "max": 37872
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.9333,
+        "stddev": 0.1155,
+        "min": 0.8,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 103.0667,
+        "stddev": 36.6237,
+        "min": 60.8,
+        "max": 125.4
+      },
+      "tokens": {
+        "mean": 28888.3333,
+        "stddev": 6779.014,
+        "min": 21107,
+        "max": 33516
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.07",
+      "time_seconds": "+7.4",
+      "tokens": "+2674"
+    }
+  },
+  "notes": []
+}

@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper",
+      "passed": true,
+      "evidence": "Response explicitly covers all six layers: model (Step 2: ProductReview.java in model/), repository (Step 3: ProductReviewRepository.java in repository/), service (Step 6: ProductReviewService.java in service/), controller (Step 7: ProductReviewController.java in controller/), DTOs (Step 4: ProductReviewRequestDto.java and ProductReviewResponseDto.java in dto/), and mapper (Step 5: ProductReviewMapper.java in dto/mapper/)."
+    },
+    {
+      "text": "References the correct base package (msg.onlineshopapi) or the correct directory structure",
+      "passed": true,
+      "evidence": "All Java file paths use the correct base package 'msg.onlineshopapi' (e.g., 'onlineshopapi/src/main/java/msg/onlineshopapi/model/ProductReview.java') and all package declarations start with 'package msg.onlineshopapi.*'."
+    },
+    {
+      "text": "Mentions that a Flyway migration file is needed for the schema change",
+      "passed": true,
+      "evidence": "Step 1 explicitly states: 'File: onlineshopapi/src/main/resources/db/migration/V3__add_product_reviews.sql' and notes 'ddl-auto is validate, so Flyway owns schema exclusively — never skip this step.' Also in Rules Applied: 'Flyway owns schema: V3__add_product_reviews.sql is the only valid way to add the table.'"
+    },
+    {
+      "text": "Correctly locates DTOs in dto/ and mapper in dto/mapper/",
+      "passed": true,
+      "evidence": "DTOs are placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/ProductReviewRequestDto.java' and 'msg/onlineshopapi/dto/ProductReviewResponseDto.java'. Mapper is placed at 'onlineshopapi/src/main/java/msg/onlineshopapi/dto/mapper/ProductReviewMapper.java'. Step 5 notes: 'All entity-to-DTO conversion belongs in dto/mapper/.'"
+    },
+    {
+      "text": "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler",
+      "passed": true,
+      "evidence": "Step 9 adds Angular service methods (loadReviews and submitReview) to product.service.ts. Step 11 adds MSW mock handler routes to products-handler.mock.ts. The response states: 'Every new endpoint must have a mock handler. Mock mode must stay fully functional.'"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

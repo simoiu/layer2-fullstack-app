@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Mentions the login endpoint (POST /auth/login or /api/auth/login)",
+      "passed": true,
+      "evidence": "\"Endpoint: POST /api/auth/login (public)\" explicitly stated in Phase 2 (Login), and also shown in the summary diagram as \"POST /auth/login → AuthController ...\""
+    },
+    {
+      "text": "Mentions JWT token generation (JwtService or equivalent)",
+      "passed": true,
+      "evidence": "\"JwtService.generateToken(userDetails)\" is shown in the backend login chain, and the key file \"onlineshopapi/.../security/JwtService.java\" is listed. The summary diagram also shows \"JwtService.generateToken() (HMAC-SHA, 24h)\"."
+    },
+    {
+      "text": "Mentions localStorage as where the token is stored on the frontend",
+      "passed": true,
+      "evidence": "\"Calls persistToken(): sets the token signal and writes to localStorage under key access_token\" in Phase 2 frontend chain. Also: \"AuthService constructor reads localStorage.getItem('access_token') into the token signal synchronously\" in Phase 3."
+    },
+    {
+      "text": "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header",
+      "passed": true,
+      "evidence": "Phase 4 is titled \"Attaching the token to every subsequent request\" and states: \"authTokenInterceptor (features/auth/interceptors/auth-token.interceptor.ts): ... If a token exists, clones the request and adds Authorization: Bearer <token>.\""
+    },
+    {
+      "text": "Mentions JwtAuthFilter as the backend token validation component",
+      "passed": true,
+      "evidence": "Phase 5 is titled \"Per-request validation on the backend\" and opens with \"JwtAuthFilter (security/JwtAuthFilter.java, extends OncePerRequestFilter): Runs before UsernamePasswordAuthenticationFilter on every request...\""
+    },
+    {
+      "text": "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement",
+      "passed": true,
+      "evidence": "\"Method-level: @PreAuthorize(\\\"hasRole('ADMIN')\\\") on write operations in ProductController and ProductCategoryController.\" Also: registration forces \"role to CUSTOMER\", and rolesGuard uses \"roles: ['ADMIN']\"."
+    },
+    {
+      "text": "Mentions Angular guards (authGuard and/or rolesGuard) for route protection",
+      "passed": true,
+      "evidence": "The \"Frontend route protection\" section explicitly lists all three guards in a table: authGuard, guestGuard, and rolesGuard, with their checks and redirect behaviors."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  }
+}

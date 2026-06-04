@@ -1,0 +1,12 @@
+{
+  "eval_id": 0,
+  "eval_name": "product-reviews-endpoint",
+  "prompt": "Where should I add a new REST endpoint for product reviews? Walk me through which files to touch.",
+  "assertions": [
+    "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper",
+    "References the correct base package (msg.onlineshopapi) or the correct directory structure",
+    "Mentions that a Flyway migration file is needed for the schema change",
+    "Correctly locates DTOs in dto/ and mapper in dto/mapper/",
+    "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler"
+  ]
+}

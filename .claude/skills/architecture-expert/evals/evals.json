@@ -5,19 +5,42 @@
       "id": 0,
       "prompt": "Where should I add a new REST endpoint for product reviews? Walk me through which files to touch.",
       "expected_output": "Concrete list of backend files/packages to create or modify: new model, repository, service, controller, DTOs and mapper. Should mention the correct base package (msg.onlineshopapi), follow the existing layered pattern, and optionally note where a frontend feature folder would go.",
-      "files": []
+      "files": [],
+      "expectations": [
+        "Lists all required backend layers: model/entity, repository, service, controller, DTO, and mapper",
+        "References the correct base package (msg.onlineshopapi) or the correct directory structure",
+        "Mentions that a Flyway migration file is needed for the schema change",
+        "Correctly locates DTOs in dto/ and mapper in dto/mapper/",
+        "Mentions frontend impact: at minimum an Angular service method, ideally also a MSW mock handler"
+      ]
     },
     {
       "id": 1,
       "prompt": "How does auth work end-to-end in this app?",
       "expected_output": "End-to-end explanation covering: login POST /auth/login → JwtService generates token → stored in localStorage → AuthTokenInterceptor attaches Bearer header → JwtAuthFilter validates on backend → SecurityContext populated. Should mention roles (CUSTOMER/ADMIN), @PreAuthorize, and the Angular guards (authGuard, rolesGuard).",
-      "files": []
+      "files": [],
+      "expectations": [
+        "Mentions the login endpoint (POST /auth/login or /api/auth/login)",
+        "Mentions JWT token generation (JwtService or equivalent)",
+        "Mentions localStorage as where the token is stored on the frontend",
+        "Mentions AuthTokenInterceptor as the mechanism that attaches the Bearer header",
+        "Mentions JwtAuthFilter as the backend token validation component",
+        "Mentions user roles (ADMIN and CUSTOMER) and @PreAuthorize for method-level enforcement",
+        "Mentions Angular guards (authGuard and/or rolesGuard) for route protection"
+      ]
     },
     {
       "id": 2,
       "prompt": "What pattern does the app use to pick which warehouse fulfills an order, and where is it configured?",
       "expected_output": "Identifies the Strategy pattern, names both implementations (SingleLocationStrategy, MostAbundantStrategy), explains what each does, and points to app.order.strategy in application.yml as the config key.",
-      "files": []
+      "files": [],
+      "expectations": [
+        "Correctly identifies the Strategy design pattern",
+        "Names at least one concrete strategy implementation class",
+        "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)",
+        "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)",
+        "Explains the behavioral difference between the two strategies"
+      ]
     }
   ]
 }

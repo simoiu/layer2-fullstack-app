@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Correctly identifies the Strategy design pattern",
+      "passed": true,
+      "evidence": "\"The app uses the **Strategy pattern** for warehouse (fulfillment location) selection.\""
+    },
+    {
+      "text": "Names at least one concrete strategy implementation class",
+      "passed": true,
+      "evidence": "Names both: \"SingleLocationStrategy\" and \"MostAbundantStrategy\" with full class paths listed in the file locations table."
+    },
+    {
+      "text": "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)",
+      "passed": true,
+      "evidence": "Explicitly names both: \"| `SingleLocationStrategy` | Finds all warehouses that stock every product...\" and \"| `MostAbundantStrategy` | For each product independently, picks the warehouse with the highest stock...\""
+    },
+    {
+      "text": "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)",
+      "passed": true,
+      "evidence": "\"**`application.yml`** (line 29–30): ... app:\\n  order:\\n    strategy: SINGLE_LOCATION\" and explicitly notes \"Property | `onlineshopapi/src/main/resources/application.yml` → `app.order.strategy`\""
+    },
+    {
+      "text": "Explains the behavioral difference between the two strategies",
+      "passed": true,
+      "evidence": "\"SingleLocationStrategy: Finds all warehouses that stock every product in the order, then picks the first one that meets all quantity requirements. If no single warehouse can fulfill the whole order, throws OrderNotProcessableException.\" vs \"MostAbundantStrategy: For each product independently, picks the warehouse with the highest stock for that product. Products in the same order can ship from different warehouses.\""
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

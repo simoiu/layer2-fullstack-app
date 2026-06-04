@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "Correctly identifies the Strategy design pattern",
+      "passed": true,
+      "evidence": "The response opens with 'The app uses the **Strategy design pattern**' and the summary table lists 'Strategy (Gang of Four)' as the pattern."
+    },
+    {
+      "text": "Names at least one concrete strategy implementation class",
+      "passed": true,
+      "evidence": "Names 'SingleLocationStrategy' (file: service/strategy/SingleLocationStrategy.java) and 'MostAbundantStrategy' (file: service/strategy/MostAbundantStrategy.java)."
+    },
+    {
+      "text": "Names both strategy implementations (SingleLocation and MostAbundant/MultipleLocations variants)",
+      "passed": true,
+      "evidence": "Both strategies are named explicitly: 'SingleLocationStrategy' and 'MostAbundantStrategy', with dedicated sections for each and file paths provided."
+    },
+    {
+      "text": "Points to application.yml or application-local.yml as the configuration location (mentioning app.order.strategy key is a bonus)",
+      "passed": true,
+      "evidence": "Response states 'File: onlineshopapi/src/main/resources/application.yml' and shows the YAML snippet with 'app: order: strategy: SINGLE_LOCATION'. Also mentions 'app.order.strategy' as the property key in the summary table and in the @Value annotation reference."
+    },
+    {
+      "text": "Explains the behavioral difference between the two strategies",
+      "passed": true,
+      "evidence": "SingleLocationStrategy: 'Tries to fulfill the entire order from one single warehouse... Minimizes the number of shipments'. MostAbundantStrategy: 'Fulfills each ordered product independently from the warehouse that holds the most stock... Each product can therefore come from a different warehouse... Maximizes the chance of order fulfillment by spreading across warehouses.'"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}
